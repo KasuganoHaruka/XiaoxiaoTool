@@ -2,3 +2,12 @@ node_modules/
 .DS_Store
 *.log
 .claude/worktrees/
+
+# Android build artifacts
+android/build/
+*.keystore
+# Generated web bundle (rebuild via tools/)
+prototype/index.html
+android/assets/index.html
+medprice-query-0.1.0.apk
+prototype/*.apk

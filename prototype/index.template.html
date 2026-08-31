@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>医疗价格多版本查询 · 交互原型</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#fff; --ink:#1c2430; --sub:#6b7686; --line:#e6eaf0;
+  --brand:#2563eb; --brand-d:#1d4ed8; --accent:#0ea5a4; --warn:#b45309;
+  --chip:#eef2ff; --chipink:#3949ab; --ok:#0a7d3c; --up:#c2410c; --down:#0a7d3c;
+  --shadow:0 8px 30px rgba(20,30,50,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:linear-gradient(160deg,#dfe6f2,#eef1f5 40%);color:var(--ink);
+  display:flex;min-height:100%;align-items:flex-start;justify-content:center;gap:28px;
+  padding:24px 16px;flex-wrap:wrap}
+/* ---------- phone frame ---------- */
+.phone{width:390px;height:800px;background:var(--bg);border-radius:38px;
+  box-shadow:var(--shadow),0 0 0 10px #10151c,0 0 0 12px #2a323d;
+  overflow:hidden;position:relative;display:flex;flex-direction:column}
+.statusbar{height:34px;background:#10151c;color:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 18px;font-size:12px;flex:none}
+.statusbar .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:5px}
+.appbar{background:linear-gradient(120deg,var(--brand),var(--accent));color:#fff;
+  padding:12px 16px 14px;flex:none}
+.appbar h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.3px}
+.appbar p{margin:2px 0 0;font-size:11px;opacity:.85}
+.screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 76px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:60px;background:#fff;
+  border-top:1px solid var(--line);display:flex;z-index:20}
+.tabbar button{flex:1;border:0;background:none;font-size:11px;color:var(--sub);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:0}
+.tabbar button .ic{font-size:19px;line-height:1}
+.tabbar button.on{color:var(--brand);font-weight:700}
+.hidden{display:none!important}
+/* ---------- search ---------- */
+.searchbox{position:relative}
+.searchbox input{width:100%;padding:11px 38px 11px 36px;border:1px solid var(--line);
+  border-radius:12px;font-size:15px;background:#fff;outline:none}
+.searchbox input:focus{border-color:var(--brand)}
+.searchbox .mag{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub)}
+.searchbox .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#e9edf3;
+  width:22px;height:22px;border-radius:50%;color:var(--sub);cursor:pointer;font-size:13px}
+.hintline{font-size:11px;color:var(--sub);margin:7px 2px 4px}
+.hintline b{color:var(--brand)}
+.chip-tag{display:inline-block;background:var(--chip);color:var(--chipink);border-radius:20px;
+  padding:2px 9px;font-size:11px;margin:2px 4px 2px 0;cursor:pointer;border:1px solid #dfe4ff}
+/* version chips */
+.verbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 2px}
+.verchip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;
+  font-size:12px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px}
+.verchip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.verchip.demo::after{content:"演示";font-size:9px;background:#fde68a;color:#92400e;border-radius:6px;padding:0 4px;margin-left:2px}
+.verchip.on.demo::after{opacity:.9}
+.toggle{margin-left:auto;font-size:11px;color:var(--sub);display:flex;align-items:center;gap:5px;cursor:pointer}
+.toggle input{accent-color:var(--brand)}
+/* suggestions */
+.sugg{background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:6px;overflow:hidden;box-shadow:var(--shadow)}
+.sugg .row{padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.sugg .row:last-child{border-bottom:0}
+.sugg .row:hover{background:#f5f8ff}
+.sugg .row small{color:var(--sub);font-size:11px;flex:none}
+.matchtype{font-size:10px;border-radius:6px;padding:1px 5px;margin-left:6px}
+.mt-exact{background:#dcfce7;color:#166534}
+.mt-pinyin{background:#e0f2fe;color:#075985}
+.mt-alias{background:#fae8ff;color:#86198f}
+.mt-fuzzy{background:#fef3c7;color:#92400e}
+/* result card */
+.rescount{font-size:12px;color:var(--sub);margin:10px 2px 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(20,30,50,.04)}
+.card h3{margin:0 0 2px;font-size:15px;font-weight:700}
+.card .meta{font-size:11px;color:var(--sub);margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
+.card .meta code{background:#f1f4f9;border-radius:5px;padding:0 5px;font-size:10px}
+.pricegrid{border:1px solid var(--line);border-radius:10px;overflow-x:auto;overflow-y:hidden;font-size:12px;-webkit-overflow-scrolling:touch}
+.pricegrid table{width:auto;min-width:100%;border-collapse:collapse}
+.pricegrid th,.pricegrid td{padding:6px 6px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}
+.pricegrid th:last-child,.pricegrid td:last-child{border-right:0}
+.pricegrid tr:last-child td{border-bottom:0}
+.pricegrid thead th{background:#f6f8fc;font-weight:600;color:var(--sub);font-size:11px}
+.pricegrid .vlabel{background:#fafbfe;font-weight:600;text-align:left;color:var(--ink);position:relative}
+.pricegrid .demo-badge{font-size:9px;background:#fde68a;color:#92400e;border-radius:5px;padding:0 3px;margin-left:3px}
+.pricegrid .num{font-variant-numeric:tabular-nums}
+.pricegrid .nonnum{color:var(--warn)}
+.pricegrid .chg-up{color:var(--up)}
+.pricegrid .chg-down{color:var(--down)}
+.card .actions{display:flex;gap:8px;margin-top:9px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:5px}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.ghost{background:#f6f8fc}
+.empty{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px}
+.empty .big{font-size:34px;margin-bottom:8px}
+/* detail sheet */
+.sheet-mask{position:absolute;inset:0;background:rgba(15,20,30,.4);z-index:30;display:flex;align-items:flex-end}
+.sheet{background:#fff;width:100%;max-height:88%;border-radius:18px 18px 0 0;overflow-y:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+.sheet .hd{position:sticky;top:0;background:#fff;padding:14px 16px 10px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sheet .hd h2{margin:0;font-size:16px}
+.sheet .hd .x{border:0;background:#eef1f6;border-radius:50%;width:28px;height:28px;font-size:15px;cursor:pointer;color:var(--sub);flex:none}
+.sheet .bd{padding:12px 16px 20px}
+.kv{font-size:12px;margin:6px 0;line-height:1.5}
+.kv b{color:var(--sub);font-weight:600;margin-right:6px}
+.section-t{font-size:12px;color:var(--sub);margin:14px 0 6px;font-weight:700}
+/* page image modal (zoomable + highlight) */
+.img-mask{position:absolute;inset:0;background:rgba(8,12,18,.9);z-index:40;display:flex;flex-direction:column}
+.img-mask .bar{color:#fff;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px;flex:none}
+.img-mask .bar .x{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer}
+.viewport{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab;background:#0b0f14}
+.viewport.drag{cursor:grabbing}
+.stage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.stage img{display:block;background:#fff;-webkit-user-drag:none;user-select:none;pointer-events:none}
+.hl{position:absolute;border-radius:2px;pointer-events:none}
+.hl.row{background:rgba(14,165,164,.10);outline:1.5px dashed rgba(45,212,191,.7)}
+.hl.name{background:rgba(37,99,235,.20);outline:2.5px solid rgba(96,165,250,.95);animation:pulse 1.6s ease-in-out infinite}
+.hl.price{background:rgba(245,158,11,.24);outline:2.5px solid rgba(251,191,36,.98)}
+.hl.lbl::after{content:attr(data-lbl);position:absolute;top:-18px;left:-2px;font-size:11px;font-weight:700;color:#fff;background:rgba(217,119,6,.95);padding:0 5px;border-radius:4px;white-space:nowrap}
+.hl.name.lbl::after{background:rgba(37,99,235,.95)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.5)}50%{box-shadow:0 0 0 6px rgba(96,165,250,0)}}
+.zoombar{flex:none;display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(16,21,28,.96);color:#cbd5e1;font-size:12px}
+.zoombar button{border:0;background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zoombar button.wide{width:auto;padding:0 12px;font-size:12px}
+.zoombar .z{min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.zoombar .hlt{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.zoombar .hlt input{accent-color:#60a5fa}
+.img-note{color:#94a3b8;font-size:11px;text-align:center;padding:6px 16px 2px;background:rgba(16,21,28,.96)}
+.demo-nopage{color:#fde68a;text-align:center;padding:60px 24px;font-size:14px}
+/* generic list pages */
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.panel h4{margin:0 0 4px;font-size:14px}
+.panel p{margin:0;font-size:12px;color:var(--sub)}
+.li{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.li:last-child{border-bottom:0}
+.li small{color:var(--sub);display:block;font-size:11px;margin-top:2px}
+.pill{font-size:10px;border-radius:20px;padding:2px 8px;background:#eef2ff;color:var(--chipink)}
+.pill.user{background:#fae8ff;color:#86198f}
+.pill.auto{background:#e0f2fe;color:#075985}
+/* alias: item picker + edit rows */
+.pick{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:10px}
+.pick .row{padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pick .row:last-child{border-bottom:0}
+.pick .row:hover{background:#f5f8ff}
+.pick .row.sel{background:#eef2ff;font-weight:600}
+.pick .row small{color:var(--sub);font-size:11px;flex:none}
+.pick .row .cnt{background:#fae8ff;color:#86198f;border-radius:20px;padding:1px 7px;font-size:10px}
+.pickhint{font-size:11px;color:var(--sub);margin:8px 2px 0}
+.sel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sel-head h4{margin:0}
+.sel-head small{color:var(--sub);font-size:11px}
+.mini{border:0;background:#eef1f6;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--ink);flex:none}
+.mini.danger{background:#fee2e2;color:#b91c1c}
+.mini.save{background:var(--brand);color:#fff}
+.alias-row{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.alias-row:last-child{border-bottom:0}
+.alias-row .t{flex:1;font-size:13px;display:flex;align-items:center;gap:6px}
+.alias-row input{flex:1;padding:7px 9px;border:1px solid var(--brand);border-radius:8px;font-size:13px;outline:none}
+.alias-empty{font-size:12px;color:var(--sub);margin:8px 0}
+.field{display:flex;gap:8px;margin-top:10px}
+.field input,.field select{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none}
+.field input:focus{border-color:var(--brand)}
+.bar-usage{height:9px;background:#eef1f6;border-radius:6px;overflow:hidden;margin:8px 0}
+.bar-usage i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--accent))}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.stat .b{flex:1;min-width:80px;background:#f6f8fc;border-radius:10px;padding:10px;text-align:center}
+.stat .b b{display:block;font-size:18px;color:var(--brand)}
+.stat .b small{font-size:10px;color:var(--sub)}
+.toast{position:absolute;left:50%;bottom:74px;transform:translateX(-50%);background:#10151c;color:#fff;
+  padding:9px 14px;border-radius:20px;font-size:12px;z-index:50;opacity:0;transition:.25s;pointer-events:none;
+  display:flex;align-items:center;gap:6px;max-width:86%}
+.toast.show{opacity:.96}
+.toast.act{pointer-events:auto}
+.toast .undo{color:#93c5fd;font-weight:700;text-decoration:underline;cursor:pointer;padding:2px 4px}
+/* ---- comfort & operation polish ---- */
+.screen{overflow-x:hidden}
+.btn:active,.mini:active,.verchip:active,.chip-tag:active,.suggchip:active{transform:translateY(1px);filter:brightness(.95)}
+.tabbar button:active{background:#f1f4f9}
+.btn,.mini{transition:filter .1s,transform .05s,background .15s}
+.btn[disabled],.mini[disabled]{opacity:.42;cursor:not-allowed;filter:none;transform:none}
+.card{cursor:pointer;transition:box-shadow .15s,transform .05s}
+.card:active{transform:translateY(1px)}
+.card .tapmore{font-size:11px;color:var(--brand);margin-top:6px;text-align:right}
+.mini{min-height:32px;min-width:40px;padding:7px 12px}
+.alias-row .t{min-width:0}
+/* suggestion chips strip (replaces duplicated dropdown) */
+.suggrow{display:flex;gap:7px;overflow-x:auto;padding:8px 0 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.suggrow::-webkit-scrollbar{display:none}
+.suggchip{flex:none;border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 11px;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.suggchip .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.suggchip .d-exact{background:#16a34a}.suggchip .d-pinyin{background:#0284c7}.suggchip .d-alias{background:#c026d3}.suggchip .d-fuzzy{background:#d97706}
+.sugglabel{font-size:11px;color:var(--sub);margin:6px 2px 0}
+.vmanage{font-size:11px;color:var(--brand);cursor:pointer;text-decoration:underline;margin-left:2px}
+/* side legend panel (desktop) */
+.legend{width:330px;max-width:92vw;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px 22px;align-self:flex-start}
+.legend h2{margin:0 0 4px;font-size:17px}
+.legend .tag{display:inline-block;background:#eef2ff;color:var(--chipink);border-radius:20px;padding:2px 9px;font-size:11px;margin:0 6px 8px 0}
+.legend h3{font-size:13px;margin:16px 0 6px;color:var(--brand)}
+.legend ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.7;color:#374151}
+.legend code{background:#f1f4f9;border-radius:5px;padding:0 5px;font-size:11px}
+.legend .try{background:#f6f8fc;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12px;margin-top:8px}
+.legend .try b{color:var(--brand)}
+.dlbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 4px;
+  background:linear-gradient(120deg,var(--brand),var(--accent));color:#fff;text-decoration:none;
+  padding:12px 14px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 6px 18px rgba(37,99,235,.28);transition:filter .12s,transform .05s}
+.dlbtn:hover{filter:brightness(1.05)}
+.dlbtn:active{transform:translateY(1px)}
+.dlbtn small{font-weight:500;opacity:.9;font-size:11px}
+.dlnote{font-size:11px;color:var(--sub);margin:2px 2px 0;line-height:1.6}
+.foot{font-size:11px;color:var(--sub);margin-top:14px;line-height:1.6}
+@media(max-width:760px){.legend{order:2}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar"><span><span class="dot"></span>本地数据 · 离线</span><span>9:41　100% ▮</span></div>
+  <div class="appbar">
+    <h1>医疗价格 · 多版本查询</h1>
+    <p>数据不出端 · 零业务网络请求 · 安卓 APK 原型</p>
+  </div>
+
+  <!-- ===== SEARCH SCREEN ===== -->
+  <div class="screen" id="scr-search">
+    <div class="searchbox">
+      <span class="mag">🔍</span>
+      <input id="q" placeholder="项目名 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off"/>
+      <button class="clr" id="clr">×</button>
+    </div>
+    <div class="hintline">支持 <b>关键词</b> · <b>拼音全拼</b> · <b>首字母</b> · <b>别名</b> · <b>模糊</b>。示例：</div>
+    <div id="examples"></div>
+    <div class="verbar" id="verbar"></div>
+    <div id="suggwrap"></div>
+    <div class="rescount" id="rescount"></div>
+    <div id="results"></div>
+  </div>
+
+  <!-- ===== VERSION SCREEN ===== -->
+  <div class="screen hidden" id="scr-version">
+    <div class="panel">
+      <h4>版本管理</h4>
+      <p>用户自行标注/增删版本；检索结果按勾选版本横向对比。</p>
+    </div>
+    <div class="panel" id="versionList"></div>
+    <div class="panel">
+      <h4>导入更多版本</h4>
+      <p>多版本对比在导入其它年份价格表后自动展开：到「数据」页导入新数据包，或上传新 PDF 端侧解析。</p>
+    </div>
+  </div>
+
+  <!-- ===== ALIAS SCREEN ===== -->
+  <div class="screen hidden" id="scr-alias">
+    <div class="panel">
+      <h4>别名管理（越用越准）</h4>
+      <p>先搜索并选择项目，再查看/新增/修改/删除它的别名。改动<b>本地保存（localStorage）</b>，刷新/重开不丢失。</p>
+    </div>
+    <div class="panel">
+      <h4>① 搜索并选择项目</h4>
+      <div class="searchbox" style="margin-top:8px">
+        <span class="mag">🔍</span>
+        <input id="aliasSearch" placeholder="项目名 / 拼音 / 首字母 / 别名" autocomplete="off"/>
+        <button class="clr" id="aliasSearchClr">×</button>
+      </div>
+      <div id="aliasPickList"></div>
+    </div>
+    <div class="panel hidden" id="aliasEditPanel"></div>
+  </div>
+
+  <!-- ===== DATA SCREEN ===== -->
+  <div class="screen hidden" id="scr-data">
+    <div class="panel">
+      <h4>数据管理</h4>
+      <p>标准数据包：<code>data.db</code> + <code>page_images/</code> + <code>meta.json</code>，内置随 App 分发。</p>
+      <div class="stat" id="dataStat"></div>
+    </div>
+    <div class="panel">
+      <h4>本地存储占用（演示）</h4>
+      <div class="bar-usage"><i style="width:34%"></i></div>
+      <p>页码图 ~ 数十 MB / 结构化数据 ~ 十几 MB，均在 <code>USER_DATA_PATH</code>。</p>
+    </div>
+    <div class="panel">
+      <h4>操作</h4>
+      <div class="field"><button class="btn ghost" onclick="toast('演示：导入新数据包 bundle')">📥 导入新数据包</button>
+      <button class="btn ghost" onclick="toast('演示：导出 data.db')">📤 导出数据</button></div>
+      <div class="field"><button class="btn ghost" onclick="toast('演示：导出用户别名 CSV')">🏷️ 导出别名</button>
+      <button class="btn ghost" onclick="toast('演示：上传新 PDF 端侧解析（M5 可选路径）')">➕ 上传 PDF 解析</button></div>
+      <div class="field"><button class="btn ghost" id="resetAliasBtn">♻️ 重置别名为默认（清空本地存储）</button></div>
+    </div>
+  </div>
+
+  <!-- overlays -->
+  <div id="sheetHost"></div>
+  <div id="imgHost"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="tabbar">
+    <button data-scr="search" class="on"><span class="ic">🔍</span>查询</button>
+    <button data-scr="version"><span class="ic">🗂️</span>版本</button>
+    <button data-scr="alias"><span class="ic">🏷️</span>别名</button>
+    <button data-scr="data"><span class="ic">💾</span>数据</button>
+  </div>
+</div>
+
+<div class="legend">
+  <h2>交互原型说明</h2>
+  <div>
+    <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
+  </div>
+  <a class="dlbtn" href="medprice-query-0.1.0.apk" download="医疗价格查询-0.1.0.apk">⬇ 下载安卓 APK<small>v0.1.0 · 1.3 MB</small></a>
+  <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
+  <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
+    数据取自样本《成都市医疗服务项目价格汇编（2024版）》真实 <b id="cnt">…</b> 个项目、<b id="pcnt">…</b> 页原文图，全部内嵌于本页，检索/对比/跳页均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
+  </p>
+  <h3>对照痛点</h3>
+  <ul>
+    <li><b>P1 名称不一致</b>：搜索框支持关键词/拼音/首字母/别名/模糊，右下角标签标注命中类型。</li>
+    <li><b>P2 多版本</b>：结果卡片按版本<b>横向分列</b>五级价；当前内置 2024 版真实数据，导入其它年份后自动展开跨版本对比。</li>
+    <li><b>P3 原文核验</b>：结果「查看原文」→ 全屏真实 PDF 页，<b>自动高亮</b>该项目名称行与五级价，并支持<b>缩放/拖动/双指捏合</b>、双击放大、「定位项目」。</li>
+    <li><b>P4/隐私</b>：全程本地，无任何网络请求。</li>
+  </ul>
+  <h3>试试看</h3>
+  <div class="try">
+    输入 <b>jzzcf</b>（首字母）、<b>yuancheng</b>（拼音）、<b>床位</b>（关键词）、<b>远程会珍</b>（模糊/错字）；<br>
+    或到「别名」页搜索并选中 <b>急诊诊查费</b>，为它新增别名 <b>急诊挂号</b>，再回搜索输 <b>急诊挂号</b>（支持改/删）。
+  </div>
+  <div class="foot">
+    ※ 本原型用于评审交互，不含业务后端。五级价 = 三甲/三乙/二甲/二乙/二乙以下。价格保留原文（含 <code>30%</code>、<code>不超过420</code> 等非数字）。<br>
+    对应设计文档：<b>医疗价格多版本查询系统设计文档-v2重组稿.md</b>
+  </div>
+</div>
+
+<script id="DATA" type="application/json">__DATA__</script>
+<script>
+const DATA = JSON.parse(document.getElementById('DATA').textContent);
+const LEVELS = DATA.price_levels;               // 三甲/三乙/二甲/二乙/二乙以下
+const V_MAIN = DATA.version_label;              // 2024版
+document.getElementById('cnt').textContent = DATA.items.length;
+document.getElementById('pcnt').textContent = Object.keys(DATA.page_images).length;
+
+// ---- assign ids ----
+DATA.items.forEach((it,i)=> it.id='I'+i);
+
+// ---- versions: only the real 2024 data (no demo/simulated version) ----
+DATA.items.forEach(it=>{
+  it.versions = {};
+  it.versions[V_MAIN] = { prices: it.prices.slice(), page_no: it.page_no };
+});
+const VERSIONS = [
+  {label:V_MAIN, demo:false, on:true},
+];
+let onlyChanged = false;
+
+// ---- aliases (item stored as item id) · persisted to localStorage ----
+const ALIASES = [];
+let AID = 0;
+const LS_KEY = 'medprice.aliases.v1';
+function seedDefaults(){
+  const seed=[['急诊挂号','急诊诊查费','auto'],['留观','门急诊留观诊查费','auto'],['远程','远程会诊','auto']];
+  seed.forEach(([term,name,by])=>{
+    const it=DATA.items.find(x=>x.name===name);
+    if(it) ALIASES.push({aid:++AID, term, item:it.id, by, w:by==='user'?3:1});
+  });
+}
+function saveAliases(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(ALIASES)); }catch(e){} }
+function loadAliases(){
+  let stored=null, had=false;
+  try{ const s=localStorage.getItem(LS_KEY); if(s!==null){ had=true; stored=JSON.parse(s); } }catch(e){ had=false; }
+  ALIASES.length=0; AID=0;
+  const valid=new Set(DATA.items.map(x=>x.id));
+  if(Array.isArray(stored)){
+    stored.forEach(a=>{ if(a && a.term && valid.has(a.item)){
+      ALIASES.push({aid:++AID, term:String(a.term), item:a.item, by:a.by==='user'?'user':'auto', w:a.w||(a.by==='user'?3:1)});
+    }});
+  }
+  if(!had){ seedDefaults(); saveAliases(); }   // first ever load: seed + persist. deletions are respected on later loads.
+}
+loadAliases();
+
+// ================= search engine (local) =================
+function norm(s){return (s||'').toLowerCase().replace(/[\s,，。；;、·\-（）()]/g,'');}
+function lev(a,b){
+  const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n];
+}
+function search(raw){
+  const q=norm(raw);
+  if(!q) return [];
+  const out=new Map();
+  const add=(it,type,rank)=>{ const e=out.get(it.id); if(!e||rank<e.rank) out.set(it.id,{it,type,rank}); };
+  // alias expansion -> map alias term to item id
+  const aliasHit=ALIASES.filter(a=>{const t=norm(a.term);return t.includes(q)||q.includes(t);});
+  const aliasIds=new Set(aliasHit.map(a=>a.item));
+  for(const it of DATA.items){
+    const name=norm(it.name), nat=norm(it.national_name);
+    const py=it.py||'', ini=it.init||'', npy=it.npy||'', nini=it.ninit||'';
+    if(name.includes(q)||nat.includes(q)){ add(it,'exact',1); continue; }
+    if(py.includes(q)||npy.includes(q)){ add(it,'pinyin',2); continue; }
+    if((ini&&ini.includes(q))||(nini&&nini.includes(q))){ add(it,'pinyin',2); continue; }
+    if(aliasIds.has(it.id)){ add(it,'alias',3); continue; }
+    // fuzzy on name (short queries only, edit distance<=2)
+    if(q.length>=2 && q.length<=8){
+      const dist=Math.min(lev(q,name.slice(0,q.length+2)), lev(q,name));
+      if(dist<=2) add(it,'fuzzy',4);
+    }
+  }
+  return [...out.values()].sort((a,b)=> a.rank-b.rank || a.it.name.localeCompare(b.it.name));
+}
+const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],fuzzy:['模糊','mt-fuzzy']};
+
+// ================= rendering =================
+const $=s=>document.querySelector(s);
+function activeVersions(){return VERSIONS.filter(v=>v.on).map(v=>v.label);}
+
+function renderExamples(){
+  const ex=[['床位','关键词'],['jzzcf','首字母'],['yuancheng','拼音'],['远程会珍','模糊错字'],['急诊挂号','别名']];
+  $('#examples').innerHTML=ex.map(([t,l])=>`<span class="chip-tag" data-q="${t}">${t}<small style="opacity:.6"> ${l}</small></span>`).join('');
+  document.querySelectorAll('#examples .chip-tag').forEach(c=>c.onclick=()=>{$('#q').value=c.dataset.q;doSearch();});
+}
+function renderVerbar(){
+  const multi = VERSIONS.length>1;
+  $('#verbar').innerHTML = VERSIONS.map((v,i)=>
+    `<span class="verchip ${v.on?'on':''} ${v.demo?'demo':''}" data-i="${i}">${v.on?'✓ ':''}${v.label}</span>`).join('')
+    + (multi? `<label class="toggle"><input type="checkbox" id="onlyChg" ${onlyChanged?'checked':''}/> 仅显示有变动</label>`:'')
+    + `<span class="vmanage" id="goVer">管理版本 ›</span>`;
+  document.querySelectorAll('#verbar .verchip').forEach(c=>c.onclick=()=>{VERSIONS[c.dataset.i].on=!VERSIONS[c.dataset.i].on;renderVerbar();doSearch();});
+  const oc=$('#onlyChg'); if(oc) oc.onchange=e=>{onlyChanged=e.target.checked;doSearch();};
+  $('#goVer').onclick=()=>document.querySelectorAll('.tabbar button')[1].click();
+}
+function priceCell(val, base){
+  const isNum=/^\d+(\.\d+)?$/.test(val);
+  let cls=isNum?'num':'num nonnum', chg='';
+  if(isNum && base!=null && /^\d+(\.\d+)?$/.test(base)){
+    const a=parseFloat(val), b=parseFloat(base);
+    if(a>b){cls+=' chg-up';chg=' ↑';} else if(a<b){cls+=' chg-down';chg=' ↓';}
+  }
+  return `<td class="${cls}">${val||'—'}${chg}</td>`;
+}
+function versionsChanged(it){
+  const vs=activeVersions().filter(l=>it.versions[l]);
+  if(vs.length<2) return true;
+  const base=it.versions[vs[0]].prices.join('|');
+  return vs.some(l=> it.versions[l].prices.join('|')!==base);
+}
+function priceGrid(it){
+  const vs=activeVersions().filter(l=>it.versions[l]);
+  const head=`<thead><tr><th>版本</th>${LEVELS.map(l=>`<th>${l}</th>`).join('')}</tr></thead>`;
+  let baseRow=null;
+  const rows=vs.map(l=>{
+    const rec=it.versions[l];
+    const cells=rec.prices.map((p,idx)=>priceCell(p, baseRow?baseRow[idx]:null)).join('');
+    if(!baseRow) baseRow=rec.prices;
+    const demo=rec.demo?`<span class="demo-badge">模拟</span>`:'';
+    return `<tr><td class="vlabel">${l}${demo}</td>${cells}</tr>`;
+  }).join('');
+  return `<div class="pricegrid"><table>${head}<tbody>${rows}</tbody></table></div>`;
+}
+function resultCard(r){
+  const it=r.it, [ml,mc]=MT[r.type];
+  return `<div class="card" data-card="${it.id}">
+    <h3>${it.name}<span class="matchtype ${mc}">${ml}</span></h3>
+    <div class="meta"><span>编码 <code>${it.local_code}</code></span><span>国家码 <code>${it.national_code}</code></span><span>单位 ${it.unit||'—'}</span></div>
+    ${priceGrid(it)}
+    <div class="actions">
+      <button class="btn primary" data-detail="${it.id}">📄 查看原文</button>
+      <button class="btn ghost" data-more="${it.id}">详情</button>
+    </div>
+    <div class="tapmore">点卡片任意处查看详情 ›</div>
+  </div>`;
+}
+function doSearch(){
+  const raw=$('#q').value;
+  let list=search(raw);
+  if(onlyChanged) list=list.filter(r=>versionsChanged(r.it));
+  $('#rescount').textContent = raw? `命中 ${list.length} 项 · 版本：${activeVersions().join(' / ')||'（未选）'}` : '';
+  if(!raw){ $('#results').innerHTML=`<div class="empty"><div class="big">🔎</div>输入项目名、拼音或别名开始检索<br><small>试试左侧「试试看」的例子</small></div>`; $('#suggwrap').innerHTML=''; return; }
+  // suggestions: compact horizontal chips (only when >1 result, avoids duplicating the card list)
+  const dcls={exact:'d-exact',pinyin:'d-pinyin',alias:'d-alias',fuzzy:'d-fuzzy'};
+  $('#suggwrap').innerHTML = list.length>1? `<div class="sugglabel">联想 · 点按直达</div><div class="suggrow">${list.slice(0,8).map(r=>
+     `<span class="suggchip" data-sugg="${r.it.id}"><span class="dot ${dcls[r.type]}"></span>${r.it.name}</span>`).join('')}</div>`:'';
+  $('#results').innerHTML = list.length? list.map(resultCard).join('')
+     : `<div class="empty"><div class="big">🫥</div>未找到「${raw}」<br><small>可到「别名」页添加映射，越用越准</small></div>`;
+  bindCards();
+}
+function bindCards(){
+  document.querySelectorAll('#results [data-card]').forEach(c=>c.onclick=()=>openDetail(c.dataset.card));
+  document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=e=>{e.stopPropagation();openImage(b.dataset.detail);});
+  document.querySelectorAll('[data-more]').forEach(b=>b.onclick=e=>{e.stopPropagation();openDetail(b.dataset.more);});
+  document.querySelectorAll('[data-sugg]').forEach(b=>b.onclick=()=>openDetail(b.dataset.sugg));
+}
+
+// ---- detail sheet ----
+function openDetail(id){
+  const it=DATA.items.find(x=>x.id===id);
+  $('#sheetHost').innerHTML=`<div class="sheet-mask" id="sm"><div class="sheet">
+    <div class="hd"><h2>${it.name}</h2><button class="x" id="sx">×</button></div>
+    <div class="bd">
+      <div class="kv"><b>项目编码</b>${it.local_code}　<b>国家码</b>${it.national_code}</div>
+      <div class="kv"><b>计价单位</b>${it.unit||'—'}</div>
+      <div class="section-t">各版本 · 五级价（横向对比）</div>
+      ${priceGrid(it)}
+      <div class="section-t">项目内涵</div>
+      <div class="kv">${it.connotation||'—'}</div>
+      ${it.exclusion?`<div class="section-t">除外内容</div><div class="kv">${it.exclusion}</div>`:''}
+      <div class="section-t">说明</div>
+      <div class="kv">${it.note||'—'}</div>
+      <div class="actions" style="margin-top:14px"><button class="btn primary" id="toImg">📄 查看 ${V_MAIN} 原文（第 ${it.page_no} 页）</button></div>
+    </div></div></div>`;
+  $('#sx').onclick=closeSheet; $('#sm').onclick=e=>{if(e.target.id==='sm')closeSheet();};
+  $('#toImg').onclick=()=>{closeSheet();openImage(id);};
+}
+function closeSheet(){$('#sheetHost').innerHTML='';}
+
+// ---- page image modal (P3): highlight key data + zoom/pan ----
+function openImage(id){
+  const it=DATA.items.find(x=>x.id===id);
+  const img=DATA.page_images[String(it.page_no)];
+  const dim=(DATA.page_dims||{})[String(it.page_no)];
+  if(!img || !dim){
+    $('#imgHost').innerHTML=`<div class="img-mask" id="im">
+      <div class="bar"><span>📄 原文核验 · 第 ${it.page_no} 页</span><button class="x" id="ix">关闭</button></div>
+      <div class="demo-nopage">该版本为演示模拟数据，无对应原文页。<br>真实版本将逐页内置页码图，绝对精准跳转。</div></div>`;
+    $('#ix').onclick=()=>$('#imgHost').innerHTML=''; return;
+  }
+  const [natW,natH]=dim;
+  const hls=(it.hl||[]);
+  const priceIdx=hls.filter(h=>h.k==='price').sort((a,b)=>a.x-b.x);
+  const hlHTML=hls.map(h=>{
+    let extra='',lbl='';
+    if(h.k==='name'){extra=' lbl';lbl=` data-lbl="项目名称"`;}
+    else if(h.k==='price'){const i=priceIdx.indexOf(h); if(i===0){extra=' lbl';lbl=` data-lbl="${LEVELS[0]}价"`;}}
+    return `<div class="hl ${h.k}${extra}" data-k="${h.k}"${lbl} style="left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px"></div>`;
+  }).join('');
+  $('#imgHost').innerHTML=`<div class="img-mask" id="im">
+    <div class="bar"><span>📄 ${V_MAIN} · 第 ${it.page_no} 页 · 「${it.name}」</span><button class="x" id="ix">关闭</button></div>
+    <div class="viewport" id="vp">
+      <div class="stage" id="stage"><img src="${img}" style="width:${natW}px;height:${natH}px"/>${hlHTML}</div>
+    </div>
+    <div class="img-note">🔵 名称行　🟠 五级价（三甲/三乙/二甲/二乙/二乙以下）——已在原文中高亮定位</div>
+    <div class="zoombar">
+      <button id="zout">−</button><span class="z" id="zval">100%</span><button id="zin">＋</button>
+      <button class="wide" id="zto">定位项目</button>
+      <label class="hlt"><input type="checkbox" id="hltog" checked/> 高亮</label>
+    </div></div>`;
+  $('#ix').onclick=()=>$('#imgHost').innerHTML='';
+  $('#hltog').onchange=e=>{document.querySelectorAll('#stage .hl').forEach(x=>x.style.display=e.target.checked?'':'none');};
+
+  // ---- zoom / pan controller ----
+  const vp=$('#vp'), stage=$('#stage'), zval=$('#zval');
+  let vpW=vp.clientWidth, vpH=vp.clientHeight;
+  const fit=vpW/natW;                 // scale to fit width
+  const MIN=fit*0.5, MAX=fit*8;
+  let z=fit, tx=0, ty=0;
+  function clampT(){
+    const sw=natW*z, sh=natH*z;
+    tx = sw<=vpW ? (vpW-sw)/2 : Math.min(0,Math.max(vpW-sw,tx));
+    ty = sh<=vpH ? (vpH-sh)/2 : Math.min(0,Math.max(vpH-sh,ty));
+  }
+  function apply(){ clampT(); stage.style.transform=`translate(${tx}px,${ty}px) scale(${z})`; zval.textContent=Math.round(z/fit*100)+'%'; }
+  function zoomAt(cx,cy,f){
+    const nz=Math.max(MIN,Math.min(MAX,z*f));
+    const px=(cx-tx)/z, py=(cy-ty)/z;
+    z=nz; tx=cx-px*z; ty=cy-py*z; apply();
+  }
+  // initial: fit the whole highlighted row (name + 5 prices) into view, centered
+  function locate(anim){
+    let minX=natW,maxX=0,cy=natH/2;
+    hls.forEach(h=>{minX=Math.min(minX,h.x);maxX=Math.max(maxX,h.x+h.w);});
+    const nb=hls.find(h=>h.k==='name')||hls.find(h=>h.k==='row');
+    if(nb) cy=nb.y+nb.h/2;
+    const rowW=Math.max(1,maxX-minX);
+    z=Math.max(fit, Math.min(MAX, vpW/(rowW*1.08)));   // fill width with the full row + margin
+    const cx=(minX+maxX)/2;
+    tx=vpW/2 - cx*z; ty=vpH/2 - cy*z;
+    stage.style.transition = anim? 'transform .28s ease':'none';
+    apply();
+    if(anim) setTimeout(()=>stage.style.transition='none',300);
+  }
+  $('#zin').onclick=()=>zoomAt(vpW/2,vpH/2,1.3);
+  $('#zout').onclick=()=>zoomAt(vpW/2,vpH/2,1/1.3);
+  $('#zto').onclick=()=>locate(true);
+  // wheel zoom at cursor
+  vp.addEventListener('wheel',e=>{e.preventDefault();const r=vp.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top, e.deltaY<0?1.15:1/1.15);},{passive:false});
+  // pointer drag + pinch
+  const pts=new Map(); let pinchD=0, pinchMid=null;
+  vp.addEventListener('pointerdown',e=>{vp.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});vp.classList.add('drag');});
+  vp.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId))return;
+    const r=vp.getBoundingClientRect();
+    const prev=pts.get(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){ tx+=e.clientX-prev.x; ty+=e.clientY-prev.y; apply(); }
+    else if(pts.size===2){
+      const a=[...pts.values()]; const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+      const mid={x:(a[0].x+a[1].x)/2-r.left,y:(a[0].y+a[1].y)/2-r.top};
+      if(pinchD){ zoomAt(mid.x,mid.y, d/pinchD); }
+      pinchD=d; pinchMid=mid;
+    }
+  });
+  function up(e){ pts.delete(e.pointerId); if(pts.size<2)pinchD=0; if(pts.size===0)vp.classList.remove('drag'); }
+  vp.addEventListener('pointerup',up); vp.addEventListener('pointercancel',up); vp.addEventListener('pointerleave',up);
+  // double-click / double-tap to toggle zoom
+  vp.addEventListener('dblclick',e=>{const r=vp.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top, z>fit*1.5?fit/z:2.2);});
+  requestAnimationFrame(()=>{vpW=vp.clientWidth;vpH=vp.clientHeight;locate(false);});
+}
+
+// ================= other tabs =================
+function renderVersions(){
+  $('#versionList').innerHTML = VERSIONS.map((v,i)=>`
+    <div class="li"><div>${v.label} ${v.demo?'<span class="pill">演示模拟</span>':'<span class="pill auto">已内置</span>'}
+      <small>来源：${v.demo?'客户端生成（演示 P2）':DATA.source_file}</small></div>
+      <label class="toggle"><input type="checkbox" ${v.on?'checked':''} data-v="${i}"/> 参与检索</label></div>`).join('');
+  document.querySelectorAll('#versionList [data-v]').forEach(c=>c.onchange=()=>{VERSIONS[c.dataset.v].on=c.checked;renderVerbar();doSearch();});
+}
+// ---- alias management: search item → show its aliases → add/edit/delete ----
+let aliasSel=null;       // selected item id
+let aliasEditAid=null;   // alias id being inline-edited
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function aliasCount(id){return ALIASES.filter(a=>a.item===id).length;}
+function aliasRenderPicker(){
+  const raw=$('#aliasSearch').value.trim();
+  let list = raw ? search(raw).slice(0,8).map(r=>r.it) : DATA.items.slice(0,6);
+  const host=$('#aliasPickList');
+  if(!list.length){ host.innerHTML=`<div class="pickhint">未找到「${esc(raw)}」，换个词试试</div>`; return; }
+  host.innerHTML=`${raw?'':'<div class="pickhint">常用项目（或直接搜索）：</div>'}<div class="pick">`+list.map(it=>{
+    const n=aliasCount(it.id);
+    return `<div class="row ${aliasSel===it.id?'sel':''}" data-pick="${it.id}">
+      <span>${it.name}</span>
+      <small>${n?`<span class="cnt">别名 ${n}</span>`:`编码 ${it.local_code}`}</small></div>`;
+  }).join('')+`</div>`;
+  host.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{aliasSel=b.dataset.pick;aliasEditAid=null;aliasRenderPicker();aliasRenderEdit();});
+}
+function aliasRenderEdit(){
+  const panel=$('#aliasEditPanel');
+  if(!aliasSel){ panel.classList.add('hidden'); panel.innerHTML=''; return; }
+  panel.classList.remove('hidden');
+  const it=DATA.items.find(x=>x.id===aliasSel);
+  const list=ALIASES.filter(a=>a.item===aliasSel);
+  const rows = list.length ? list.map(a=> a.aid===aliasEditAid
+    ? `<div class="alias-row"><input value="${esc(a.term)}" data-edit="${a.aid}"/>
+         <button class="mini save" data-save="${a.aid}">保存</button>
+         <button class="mini" data-cancel="1">取消</button></div>`
+    : `<div class="alias-row"><span class="t">${esc(a.term)} <span class="pill ${a.by==='user'?'user':'auto'}">${a.by}</span></span>
+         <button class="mini" data-edit-btn="${a.aid}">改</button>
+         <button class="mini danger" data-del="${a.aid}">删</button></div>`
+    ).join('') : `<div class="alias-empty">该项目暂无别名，在下方添加一个。</div>`;
+  panel.innerHTML=`
+    <div class="sel-head"><div><h4>${it.name}</h4><small>编码 ${it.local_code} · 当前别名 ${list.length}</small></div>
+      <button class="mini" data-clearsel="1">× 取消选择</button></div>
+    <div class="section-t" style="margin-top:10px">② 当前别名</div>
+    ${rows}
+    <div class="section-t" style="margin-top:12px">③ 新增别名</div>
+    <div class="field"><input id="newAliasTerm" placeholder="别名/简写，如「${it.name.slice(0,3)}」的常用叫法"/>
+      <button class="btn primary" id="addAliasBtn">添加</button></div>`;
+  panel.querySelector('[data-clearsel]').onclick=()=>{aliasSel=null;aliasEditAid=null;aliasRenderEdit();aliasRenderPicker();};
+  panel.querySelectorAll('[data-edit-btn]').forEach(b=>b.onclick=()=>{aliasEditAid=+b.dataset.editBtn;aliasRenderEdit();});
+  // delete with undo
+  panel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    const id=+b.dataset.del, i=ALIASES.findIndex(a=>a.aid===id);
+    if(i<0) return;
+    const removed=Object.assign({}, ALIASES[i]);
+    ALIASES.splice(i,1); saveAliases();
+    aliasEditAid=null; aliasRenderEdit(); aliasRenderPicker();
+    toast('已删除「'+esc(removed.term)+'」', {label:'撤销', cb:()=>{
+      ALIASES.push({aid:++AID, term:removed.term, item:removed.item, by:removed.by, w:removed.w});
+      saveAliases(); aliasRenderEdit(); aliasRenderPicker(); toast('已恢复「'+esc(removed.term)+'」');
+    }});
+  });
+  // inline edit save (Enter=保存, Esc=取消, 空值禁用)
+  function doSave(id){
+    const inp=panel.querySelector('[data-edit="'+id+'"]'); if(!inp) return;
+    const v=inp.value.trim();
+    if(!v){toast('别名不能为空');return;}
+    if(ALIASES.some(a=>a.aid!==id&&a.item===aliasSel&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
+    const a=ALIASES.find(x=>x.aid===id); a.term=v; a.by='user'; a.w=3; saveAliases();
+    aliasEditAid=null; toast('已修改为「'+esc(v)+'」'); aliasRenderEdit();
+  }
+  panel.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>doSave(+b.dataset.save));
+  const c=panel.querySelector('[data-cancel]'); if(c)c.onclick=()=>{aliasEditAid=null;aliasRenderEdit();};
+  const ei=panel.querySelector('[data-edit]');
+  if(ei){ const said=aliasEditAid, sb=panel.querySelector('[data-save]');
+    const updE=()=>{ if(sb) sb.disabled=!ei.value.trim(); }; ei.addEventListener('input',updE); updE();
+    ei.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(!sb||!sb.disabled) doSave(said);} else if(e.key==='Escape'){aliasEditAid=null;aliasRenderEdit();} });
+    ei.focus(); ei.setSelectionRange(ei.value.length, ei.value.length);
+  }
+  // add (Enter 提交, 空值禁用, 添加后自动聚焦可连续录)
+  const addInp=panel.querySelector('#newAliasTerm'), addBtn=panel.querySelector('#addAliasBtn');
+  function doAdd(){
+    const v=addInp.value.trim();
+    if(!v){toast('请输入别名');return;}
+    if(ALIASES.some(a=>a.item===aliasSel&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
+    ALIASES.push({aid:++AID,term:v,item:aliasSel,by:'user',w:3}); saveAliases();
+    toast('已添加：'+esc(v)+' → '+esc(it.name)+'（已本地保存）');
+    aliasEditAid=null; aliasRenderEdit(); aliasRenderPicker();
+    const ni=panel.querySelector('#newAliasTerm'); if(ni) ni.focus();
+  }
+  addBtn.onclick=doAdd;
+  const updA=()=>{ addBtn.disabled=!addInp.value.trim(); }; addInp.addEventListener('input',updA); updA();
+  addInp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!addBtn.disabled) doAdd(); });
+}
+function renderDataStat(){
+  $('#dataStat').innerHTML=`
+    <div class="b"><b>${DATA.items.length}</b><small>项目（样本）</small></div>
+    <div class="b"><b>${Object.keys(DATA.page_images).length}</b><small>原文页图</small></div>
+    <div class="b"><b>5</b><small>价格档位</small></div>
+    <div class="b"><b>${VERSIONS.length}</b><small>版本</small></div>`;
+}
+
+// ================= tab nav =================
+document.querySelectorAll('.tabbar button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  ['search','version','alias','data'].forEach(s=>document.getElementById('scr-'+s).classList.add('hidden'));
+  document.getElementById('scr-'+b.dataset.scr).classList.remove('hidden');
+  if(b.dataset.scr==='version')renderVersions();
+  if(b.dataset.scr==='alias'){aliasRenderPicker();aliasRenderEdit();}
+  if(b.dataset.scr==='data')renderDataStat();
+});
+
+// ---- toast ----
+let toastT;
+function toast(m, action){
+  const t=$('#toast'); clearTimeout(toastT);
+  t.innerHTML = m + (action? ' <span class="undo" id="toastUndo">'+action.label+'</span>' : '');
+  t.classList.add('show'); t.classList.toggle('act', !!action);
+  if(action){ const u=$('#toastUndo'); if(u) u.onclick=()=>{ action.cb(); t.classList.remove('show','act'); clearTimeout(toastT); }; }
+  toastT=setTimeout(()=>t.classList.remove('show','act'), action?4500:1800);
+}
+window.toast=toast;
+
+// ---- init ----
+$('#q').addEventListener('input',doSearch);
+$('#clr').onclick=()=>{$('#q').value='';doSearch();$('#q').focus();};
+$('#aliasSearch').addEventListener('input',aliasRenderPicker);
+$('#aliasSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const f=document.querySelector('#aliasPickList [data-pick]'); if(f) f.click(); } });
+$('#aliasSearchClr').onclick=()=>{$('#aliasSearch').value='';aliasRenderPicker();$('#aliasSearch').focus();};
+$('#resetAliasBtn').onclick=()=>{ try{localStorage.removeItem(LS_KEY);}catch(e){} ALIASES.length=0;AID=0;seedDefaults();saveAliases();aliasSel=null;aliasEditAid=null;toast('已重置别名为默认');doSearch(); };
+renderExamples(); renderVerbar(); doSearch();
+</script>
+</body>
+</html>
