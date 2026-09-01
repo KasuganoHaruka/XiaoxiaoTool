@@ -11,7 +11,10 @@
   --chip:#eef2ff; --chipink:#3949ab; --ok:#0a7d3c; --up:#c2410c; --down:#0a7d3c;
   --shadow:0 8px 30px rgba(20,30,50,.12);
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* 禁止长按弹出“复制/选择”菜单与选择放大镜（误触困扰）；确需选择的内容加 .selectable */
+html,body{-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}
+.selectable{-webkit-touch-callout:default;-webkit-user-select:text;-moz-user-select:text;user-select:text}
 html,body{margin:0;height:100%}
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   background:linear-gradient(160deg,#dfe6f2,#eef1f5 40%);color:var(--ink);
@@ -67,6 +70,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .mt-exact{background:#dcfce7;color:#166534}
 .mt-pinyin{background:#e0f2fe;color:#075985}
 .mt-alias{background:#fae8ff;color:#86198f}
+.mt-smart{background:#e0e7ff;color:#3730a3}
 .mt-fuzzy{background:#fef3c7;color:#92400e}
 /* result card */
 .rescount{font-size:12px;color:var(--sub);margin:10px 2px 6px}
@@ -304,7 +308,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div>
     <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
   </div>
-  <a class="dlbtn" href="medprice-query-0.1.0.apk" download="医疗价格查询-0.1.0.apk">⬇ 下载安卓 APK<small>v0.1.0 · 1.3 MB</small></a>
+  <a class="dlbtn" href="medprice-query-0.2.0.apk" download="医疗价格查询-0.2.0.apk">⬇ 下载安卓 APK<small>v0.2.0 · 1.3 MB</small></a>
   <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
   <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
     数据取自样本《成都市医疗服务项目价格汇编（2024版）》真实 <b id="cnt">…</b> 个项目、<b id="pcnt">…</b> 页原文图，全部内嵌于本页，检索/对比/跳页均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
@@ -328,8 +332,10 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 </div>
 
 <script id="DATA" type="application/json">__DATA__</script>
+<script id="PYMAP" type="application/json">__PYMAP__</script>
 <script>
 const DATA = JSON.parse(document.getElementById('DATA').textContent);
+const PYMAP = JSON.parse(document.getElementById('PYMAP').textContent);   // 汉字→全拼（无声调），供同音/首字母/混合匹配
 const LEVELS = DATA.price_levels;               // 三甲/三乙/二甲/二乙/二乙以下
 const V_MAIN = DATA.version_label;              // 2024版
 document.getElementById('cnt').textContent = DATA.items.length;
@@ -337,6 +343,14 @@ document.getElementById('pcnt').textContent = Object.keys(DATA.page_images).leng
 
 // ---- assign ids ----
 DATA.items.forEach((it,i)=> it.id='I'+i);
+
+// ---- per-item char index: 汉字 + 全拼 + 首字母，供智能子序列匹配 ----
+function charIndex(s){
+  const arr=[];
+  for(const ch of (s||'')){ const p=PYMAP[ch]; if(p) arr.push({ch, py:p, ini:p[0]}); }
+  return arr;
+}
+DATA.items.forEach(it=>{ it._cn=charIndex(it.name); it._cnat=charIndex(it.national_name); });
 
 // ---- versions: only the real 2024 data (no demo/simulated version) ----
 DATA.items.forEach(it=>{
@@ -384,6 +398,35 @@ function lev(a,b){
     d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
   return d[m][n];
 }
+// 智能子序列匹配：查询按顺序（可跳字）命中名称，每个查询单元可为
+//   ① 相同汉字  ② 同音汉字(全拼相同，容错“珍/诊”)  ③ 拼音首字母  ④ 完整拼音音节  ⑤ 音节前缀
+// 例：“单远珍”“单x”“dyz”“单yc”均可命中“单学科远程会诊”。
+function smartMatch(chars, Q){
+  const n=chars.length, m=Q.length;
+  if(!n||!m) return false;
+  const memo=new Map();
+  function go(i,j){
+    if(j===m) return true;
+    if(i===n) return false;
+    const key=i*64+j;
+    if(memo.has(key)) return memo.get(key);
+    let res=false;
+    if(go(i+1,j)) res=true;                          // 跳过当前名称字
+    if(!res){
+      const c=chars[i], qc=Q[j];
+      if(qc===c.ch){ if(go(i+1,j+1)) res=true; }      // ① 同字
+      else if(PYMAP[qc] && PYMAP[qc]===c.py){ if(go(i+1,j+1)) res=true; }  // ② 同音
+      else if(qc===c.ini){ if(go(i+1,j+1)) res=true; }// ③ 首字母
+      if(!res && Q.startsWith(c.py, j) && go(i+1, j+c.py.length)) res=true; // ④ 整音节
+      if(!res){                                        // ⑤ 音节前缀（连续字母段）
+        let k=j; while(k<m && Q[k]>='a' && Q[k]<='z') k++;
+        if(k>j){ const run=Q.slice(j,k); if(c.py.startsWith(run) && go(i+1,k)) res=true; }
+      }
+    }
+    memo.set(key,res); return res;
+  }
+  return go(0,0);
+}
 function search(raw){
   const q=norm(raw);
   if(!q) return [];
@@ -399,22 +442,24 @@ function search(raw){
     if(py.includes(q)||npy.includes(q)){ add(it,'pinyin',2); continue; }
     if((ini&&ini.includes(q))||(nini&&nini.includes(q))){ add(it,'pinyin',2); continue; }
     if(aliasIds.has(it.id)){ add(it,'alias',3); continue; }
+    // 智能子序列（缩写 / 同音错字 / 汉字+拼音混合）
+    if(q.length>=2 && (smartMatch(it._cn,q)||smartMatch(it._cnat,q))){ add(it,'smart',4); continue; }
     // fuzzy on name (short queries only, edit distance<=2)
     if(q.length>=2 && q.length<=8){
       const dist=Math.min(lev(q,name.slice(0,q.length+2)), lev(q,name));
-      if(dist<=2) add(it,'fuzzy',4);
+      if(dist<=2) add(it,'fuzzy',5);
     }
   }
   return [...out.values()].sort((a,b)=> a.rank-b.rank || a.it.name.localeCompare(b.it.name));
 }
-const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],fuzzy:['模糊','mt-fuzzy']};
+const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],smart:['联想','mt-smart'],fuzzy:['模糊','mt-fuzzy']};
 
 // ================= rendering =================
 const $=s=>document.querySelector(s);
 function activeVersions(){return VERSIONS.filter(v=>v.on).map(v=>v.label);}
 
 function renderExamples(){
-  const ex=[['床位','关键词'],['jzzcf','首字母'],['yuancheng','拼音'],['远程会珍','模糊错字'],['急诊挂号','别名']];
+  const ex=[['床位','关键词'],['jzzcf','首字母'],['单远珍','缩写同音'],['单x','汉字+拼音'],['yuancheng','拼音'],['急诊挂号','别名']];
   $('#examples').innerHTML=ex.map(([t,l])=>`<span class="chip-tag" data-q="${t}">${t}<small style="opacity:.6"> ${l}</small></span>`).join('');
   document.querySelectorAll('#examples .chip-tag').forEach(c=>c.onclick=()=>{$('#q').value=c.dataset.q;doSearch();});
 }

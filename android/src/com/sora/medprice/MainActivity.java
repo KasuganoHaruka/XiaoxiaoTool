@@ -34,6 +34,15 @@ public class MainActivity extends Activity {
 
     web.setWebChromeClient(new WebChromeClient());
     web.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
+    // 关闭长按弹出的“复制/选择”ActionMode 与触感反馈（配合页面 CSS 的 user-select:none，
+    // 避免误触后突然弹出复制菜单）。缩放/选择均由页面内自行控制。
+    web.setLongClickable(false);
+    web.setHapticFeedbackEnabled(false);
+    web.setOnLongClickListener(new View.OnLongClickListener() {
+      @Override public boolean onLongClick(View v) { return true; }  // 吞掉长按
+    });
+
     setContentView(web);
 
     web.loadUrl("file:///android_asset/index.html");

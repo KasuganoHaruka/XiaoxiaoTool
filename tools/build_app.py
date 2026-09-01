@@ -2,7 +2,8 @@ import json, os
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tpl=open(f'{ROOT}/prototype/index.template.html',encoding='utf-8').read()
 data=open(f'{ROOT}/data/proto_data.json',encoding='utf-8').read().replace('</script>','<\\/script>')
-html=tpl.replace('__DATA__', data)
+pymap=open(f'{ROOT}/data/pymap.json',encoding='utf-8').read().replace('</script>','<\\/script>')
+html=tpl.replace('__DATA__', data).replace('__PYMAP__', pymap)
 
 # 1) lock page zoom (in-app modal zoom is the only zoom)
 html=html.replace(
