@@ -40,7 +40,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .tabbar button.on{color:var(--brand);font-weight:700}
 .hidden{display:none!important}
 /* ---------- search ---------- */
-.searchhead{position:sticky;top:0;z-index:20;background:var(--bg);margin:-12px -12px 0;padding:12px 12px 8px;box-shadow:0 8px 10px -8px rgba(15,23,42,.18)}
+.searchhead{position:sticky;top:0;z-index:20;background:var(--bg);margin:-12px -12px 10px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}
 .searchhead::before{content:'';position:absolute;left:0;right:0;top:-13px;height:14px;background:var(--bg)}
 .searchbox{position:relative}
 .searchbox input{width:100%;padding:11px 38px 11px 36px;border:1px solid var(--line);
@@ -55,6 +55,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   padding:2px 9px;font-size:11px;margin:2px 4px 2px 0;cursor:pointer;border:1px solid #dfe4ff}
 /* version chips */
 .verbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 2px}
+.verbar:empty{display:none;margin:0}
 .verchip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;
   font-size:12px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px}
 .verchip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
@@ -128,6 +129,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .pricestrip .pv.nonnum{font-size:11px;font-weight:600;color:var(--warn)}
 .pricestrip .pv.z{color:#cbd5e1}
 .card .actions{display:flex;gap:8px;margin-top:9px;align-items:center}
+.card.alias-open{border-color:var(--brand);box-shadow:0 0 0 2px rgba(37,99,235,.18)}
+.alias-link.on{color:var(--brand)}
 .card .detail-link{margin-left:auto;font-size:12px;color:var(--brand);font-weight:600;cursor:pointer;padding:4px 2px}
 .card .detail-link:active{opacity:.6}
 .btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:5px}
@@ -176,7 +179,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .zoombar button.close{background:rgba(255,255,255,.22)}
 .zoombar button.close:active{background:rgba(255,255,255,.34)}
 .zoombar .z{min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
-.zoombar .hlt{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.zoombar .hlt{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:0 4px}
+.zoombar button.close{margin-left:auto}
 .zoombar .hlt input{accent-color:#60a5fa}
 .img-note{color:#94a3b8;font-size:11px;text-align:center;padding:6px 16px 2px;background:rgba(16,21,28,.96)}
 .demo-nopage{color:#fde68a;text-align:center;padding:60px 24px;font-size:14px}
@@ -210,6 +214,12 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .alias-row .t{flex:1;font-size:13px;display:flex;align-items:center;gap:6px}
 .alias-row input{flex:1;padding:7px 9px;border:1px solid var(--brand);border-radius:8px;font-size:13px;outline:none}
 .alias-empty{font-size:12px;color:var(--sub);margin:8px 0}
+.alias-editor{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.ae-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;font-size:12px;color:var(--sub)}
+.ae-head b{color:var(--ink)}
+.ae-add{display:flex;gap:8px;margin-top:8px}
+.ae-add input{flex:1;min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none}
+.ae-add input:focus{border-color:var(--brand)}
 .field{display:flex;gap:8px;margin-top:10px}
 .field input,.field select{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;outline:none}
 .field input:focus{border-color:var(--brand)}
@@ -242,7 +252,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .suggchip{flex:none;border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 11px;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .suggchip .dot{width:6px;height:6px;border-radius:50%;flex:none}
 .suggchip .d-exact{background:#16a34a}.suggchip .d-pinyin{background:#0284c7}.suggchip .d-alias{background:#c026d3}.suggchip .d-fuzzy{background:#d97706}
-.sugglabel{font-size:11px;color:var(--sub);margin:6px 2px 0}
+#suggwrap{padding-top:6px}
+.sugglabel{font-size:11px;color:var(--sub);margin:2px 2px 0}
 .vmanage{font-size:11px;color:var(--brand);cursor:pointer;text-decoration:underline;margin-left:2px}
 /* side legend panel (desktop) */
 .legend{width:330px;max-width:92vw;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px 22px;align-self:flex-start}
@@ -268,10 +279,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 <div id="boot"><div class="bootspin"></div><div>正在加载数据…</div></div>
 <div class="phone">
   <div class="statusbar"><span><span class="dot"></span>本地数据 · 离线</span><span>9:41　100% ▮</span></div>
-  <div class="appbar">
-    <h1>医疗价格 · 多版本查询</h1>
-    <p>成都 2024 版 · 全量 <b id="hcnt">8124</b> 项 · 本地离线 · 数据不出端</p>
-  </div>
 
   <!-- ===== SEARCH SCREEN ===== -->
   <div class="screen" id="scr-search">
@@ -300,24 +307,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
       <h4>导入更多版本</h4>
       <p>多版本对比在导入其它年份价格表后自动展开：到「数据」页导入新数据包，或上传新 PDF 端侧解析。</p>
     </div>
-  </div>
-
-  <!-- ===== ALIAS SCREEN ===== -->
-  <div class="screen hidden" id="scr-alias">
-    <div class="panel">
-      <h4>别名管理（越用越准）</h4>
-      <p>先搜索并选择项目，再查看/新增/修改/删除它的别名。改动<b>本地保存（localStorage）</b>，刷新/重开不丢失。</p>
-    </div>
-    <div class="panel">
-      <h4>① 搜索并选择项目</h4>
-      <div class="searchbox" style="margin-top:8px">
-        <span class="mag">🔍</span>
-        <input id="aliasSearch" placeholder="项目名 / 拼音 / 首字母 / 别名" autocomplete="off"/>
-        <button class="clr" id="aliasSearchClr">×</button>
-      </div>
-      <div id="aliasPickList"></div>
-    </div>
-    <div class="panel hidden" id="aliasEditPanel"></div>
   </div>
 
   <!-- ===== DATA SCREEN ===== -->
@@ -350,7 +339,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div class="tabbar">
     <button data-scr="search" class="on"><span class="ic">🔍</span>查询</button>
     <button data-scr="version"><span class="ic">🗂️</span>版本</button>
-    <button data-scr="alias"><span class="ic">🏷️</span>别名</button>
     <button data-scr="data"><span class="ic">💾</span>数据</button>
   </div>
 </div>
@@ -360,7 +348,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div>
     <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
   </div>
-  <a class="dlbtn" href="medprice-query-0.5.0.apk" download="医疗价格查询-0.5.0.apk">⬇ 下载安卓 APK<small>v0.5.0 · 全量8124项 · ~5.4 MB</small></a>
+  <a class="dlbtn" href="medprice-query-0.5.1.apk" download="医疗价格查询-0.5.1.apk">⬇ 下载安卓 APK<small>v0.5.1 · 全量8124项 · ~5.4 MB</small></a>
   <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
   <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
     数据取自《成都市医疗服务项目价格汇编（2024版）》全量 <b id="cnt">…</b> 个项目、共 <b id="pcnt">…</b> 页原文；结构化数据内嵌本页，原文页由内置 PDF 经 pdf.js 按需矢量渲染并高亮，检索/对比/核验均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
@@ -544,7 +532,7 @@ function catLabel(code){ const c=_catByCode[code]; return c? `${c.major_name} ·
 // 按大类分组（保持 categories 顺序）
 function catGroups(){ const g=[]; let cur=null; CATEGORIES.forEach(c=>{ if(!cur||cur.major!==c.major){ cur={major:c.major,name:c.major_name,items:[]}; g.push(cur);} cur.items.push(c); }); return g; }
 
-function search(raw){
+function search(raw, ignoreCat){
   const q=norm(raw);
   if(!q) return [];
   const out=new Map();
@@ -552,7 +540,7 @@ function search(raw){
   const aliasHit=ALIASES.filter(a=>{const t=norm(a.term);return t.includes(q)||q.includes(t);});
   const aliasIds=new Set(aliasHit.map(a=>a.item));
   const optKeys=COLDEFS.map(c=>c.k).filter(k=>OPTCOL[k]);   // 已勾选的可选列
-  const catAll=CATSEL.size===CATEGORIES.length;             // 全选时不过滤
+  const catAll=ignoreCat || CATSEL.size===CATEGORIES.length; // 全选/忽略时不过滤（别名页忽略分类）
   const hasHan=/[一-鿿]/.test(q);                   // 含汉字才启用散列子序列（避免 rbc 这类纯字母凑首字母误命中）
   for(const it of DATA.items){
     if(!catAll && !CATSEL.has(it.cat)) continue;            // 仅在选中的分类内检索
@@ -631,13 +619,15 @@ function renderFilters(){
 }
 function renderVerbar(){
   const multi = VERSIONS.length>1;
+  // 单版本时不显示版本栏（仅一版，切换无意义；版本管理在底部「版本」标签页）
+  if(!multi){ $('#verbar').innerHTML=''; return; }
   $('#verbar').innerHTML = VERSIONS.map((v,i)=>
     `<span class="verchip ${v.on?'on':''} ${v.demo?'demo':''}" data-i="${i}">${v.on?'✓ ':''}${v.label}</span>`).join('')
-    + (multi? `<label class="toggle"><input type="checkbox" id="onlyChg" ${onlyChanged?'checked':''}/> 仅显示有变动</label>`:'')
+    + `<label class="toggle"><input type="checkbox" id="onlyChg" ${onlyChanged?'checked':''}/> 仅显示有变动</label>`
     + `<span class="vmanage" id="goVer">管理版本 ›</span>`;
   document.querySelectorAll('#verbar .verchip').forEach(c=>c.onclick=()=>{VERSIONS[c.dataset.i].on=!VERSIONS[c.dataset.i].on;renderVerbar();doSearch();});
   const oc=$('#onlyChg'); if(oc) oc.onchange=e=>{onlyChanged=e.target.checked;doSearch();};
-  $('#goVer').onclick=()=>document.querySelectorAll('.tabbar button')[1].click();
+  const gv=$('#goVer'); if(gv) gv.onclick=()=>document.querySelectorAll('.tabbar button')[1].click();
 }
 function priceCell(val, base){
   const isNum=/^\d+(\.\d+)?$/.test(val);
@@ -678,27 +668,53 @@ function priceStrip(it){
   }).join('');
   return `<div class="pricestrip">${cells}</div>`;
 }
-function resultCard(r){
-  const it=r.it, [ml,mc]=MT[r.type];
-  const ciRow=(k,val)=>`<div class="ci"><span class="k">${k}</span><span class="v${val?'':' vnull'}">${val?hlText(val):'—'}</span></div>`;
+// 卡片信息主体（标题+编码/单位+内涵/说明+五级价），首页与别名页共用，保证展示一致
+function cardBody(it, hl, badge){
+  hl = hl || esc;
+  const ciRow=(k,val)=>`<div class="ci"><span class="k">${k}</span><span class="v${val?'':' vnull'}">${val?hl(val):'—'}</span></div>`;
   const info=`<div class="cardinfo">${ciRow('内涵',it.connotation)}${ciRow('说明',it.note)}</div>`;
   const prices = activeVersions().length>1 ? priceGrid(it) : priceStrip(it);
-  return `<div class="card" data-card="${it.id}">
-    <h3>${hlName(it.name)}<span class="matchtype ${mc}">${ml}</span></h3>
-    <div class="meta"><span>编码 <code>${it.local_code}</code></span><span>单位 ${esc(it.unit||'—')}</span></div>
+  return `<h3>${hl(it.name)}${badge||''}</h3>
+    <div class="meta"><span>编码 <code>${esc(it.local_code)}</code></span><span>单位 ${esc(it.unit||'—')}</span></div>
     ${info}
-    ${prices}
+    ${prices}`;
+}
+function resultCard(r){
+  const it=r.it, [ml,mc]=MT[r.type];
+  const n=aliasCount(it.id), editing=aliasSel===it.id;
+  return `<div class="card${editing?' alias-open':''}" data-card="${it.id}">
+    ${cardBody(it, hlName, `<span class="matchtype ${mc}">${ml}</span>`)}
     <div class="actions">
       <button class="btn primary" data-detail="${it.id}">📄 查看原文</button>
       <span class="detail-link" data-more="${it.id}">详情 ›</span>
+      <span class="detail-link alias-link ${editing?'on':''}" data-alias="${it.id}">🏷 ${editing?'收起 ×':('别名'+(n?' '+n:'')+' ›')}</span>
     </div>
+    ${editing? aliasEditorHTML(it) : ''}
+  </div>`;
+}
+// 卡片内内联别名编辑器（当前别名列表 + 新增）
+function aliasEditorHTML(it){
+  const list=ALIASES.filter(a=>a.item===aliasSel);
+  const rows = list.length ? list.map(a=> a.aid===aliasEditAid
+    ? `<div class="alias-row"><input value="${esc(a.term)}" data-edit="${a.aid}"/>
+         <button class="mini save" data-save="${a.aid}">保存</button>
+         <button class="mini" data-cancel="1">取消</button></div>`
+    : `<div class="alias-row"><span class="t">${esc(a.term)} <span class="pill ${a.by==='user'?'user':'auto'}">${a.by}</span></span>
+         <button class="mini" data-edit-btn="${a.aid}">改</button>
+         <button class="mini danger" data-del="${a.aid}">删</button></div>`
+    ).join('') : `<div class="alias-empty">该项目暂无别名，在下方添加一个。</div>`;
+  return `<div class="alias-editor">
+    <div class="ae-head"><b>当前别名（${list.length}）</b><button class="mini" data-clearsel="1">收起 ×</button></div>
+    ${rows}
+    <div class="ae-add"><input class="newAliasTerm" placeholder="新增别名 / 简写，如「${esc(it.name.slice(0,3))}」的常用叫法"/>
+      <button class="btn primary addAliasBtn">添加</button></div>
   </div>`;
 }
 let LAST=[], SHOWN=0, CURRAW=''; const PAGE_N=50;
 let _moreObs=null;
 // 命中词高亮（高亮所有子串出现处；拼音/联想命中自然不高亮，因为原文里没有该子串）
-function hlText(str){
-  const q=CURRAW, s=String(str==null?'':str); if(!q) return esc(s);
+function hlText(str, qArg){
+  const q=(qArg==null?CURRAW:qArg), s=String(str==null?'':str); if(!q) return esc(s);
   const lo=s.toLowerCase(), ql=q.toLowerCase();
   let out='', i=0, p;
   while((p=lo.indexOf(ql,i))>=0){ out+=esc(s.slice(i,p))+'<mark>'+esc(s.slice(p,p+q.length))+'</mark>'; i=p+q.length; }
@@ -707,6 +723,7 @@ function hlText(str){
 const hlName=hlText;
 function doSearch(){
   const raw=$('#q').value; CURRAW=raw.trim();
+  aliasSel=null; aliasEditAid=null;      // 新检索时收起所有内联别名编辑器
   let list=search(raw);
   if(onlyChanged) list=list.filter(r=>versionsChanged(r.it));
   if(_moreObs){ _moreObs.disconnect(); _moreObs=null; }
@@ -714,7 +731,7 @@ function doSearch(){
   if(CATSEL.size===0){ LAST=[]; $('#rescount').textContent=''; $('#suggwrap').innerHTML=''; $('#results').innerHTML=`<div class="empty"><div class="big">🗂️</div>未选择任何分类<br><small>请在上方「项目分类」中至少勾选一项</small></div>`; return; }
   $('#rescount').textContent = `命中 ${list.length} 项` + (VERSIONS.length>1? ` · 版本：${activeVersions().join(' / ')||'（未选）'}` : '');
   const dcls={exact:'d-exact',pinyin:'d-pinyin',alias:'d-alias',field:'d-field',smart:'d-smart',fuzzy:'d-fuzzy'};
-  $('#suggwrap').innerHTML = list.length>1? `<div class="sugglabel">联想 · 点按直达</div><div class="suggrow">${list.slice(0,8).map(r=>
+  $('#suggwrap').innerHTML = list.length>1? `<div class="suggrow">${list.slice(0,8).map(r=>
      `<span class="suggchip" data-sugg="${r.it.id}"><span class="dot ${dcls[r.type]||''}"></span>${esc(r.it.name)}</span>`).join('')}</div>`:'';
   if(!list.length){ LAST=[]; $('#results').innerHTML=`<div class="empty"><div class="big">🫥</div>未找到「${esc(raw)}」<br><small>可到「别名」页添加映射，越用越准</small></div>`; return; }
   // 增量渲染：首屏 PAGE_N 张，其余「加载更多」/滚动自动加载，避免宽词渲染数千卡片卡死
@@ -736,7 +753,17 @@ function bindCards(){
   document.querySelectorAll('#results [data-card]').forEach(c=>c.onclick=()=>openDetail(c.dataset.card));
   document.querySelectorAll('#results [data-detail]').forEach(b=>b.onclick=e=>{e.stopPropagation();openImage(b.dataset.detail);});
   document.querySelectorAll('#results [data-more]').forEach(b=>b.onclick=e=>{e.stopPropagation();openDetail(b.dataset.more);});
+  document.querySelectorAll('#results [data-alias]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const id=b.dataset.alias, prev=aliasSel; aliasSel=(aliasSel===id?null:id); aliasEditAid=null;
+    if(prev&&prev!==id) rerenderCard(prev); rerenderCard(id);});
+  document.querySelectorAll('#results .alias-editor').forEach(ed=>{const c=ed.closest('.card'); if(c) bindAliasEditor(ed, c.dataset.card);});
   document.querySelectorAll('[data-sugg]').forEach(b=>b.onclick=()=>openDetail(b.dataset.sugg));
+}
+// 原位重渲染单张结果卡片（用于别名内联编辑，避免整列表重排/跳转）
+function rerenderCard(id){
+  const r=LAST.find(x=>x.it.id===id); if(!r) return;
+  const el=document.querySelector('#results .card[data-card="'+id+'"]'); if(!el) return;
+  el.outerHTML=resultCard(r); bindCards();
 }
 
 // ---- detail sheet ----
@@ -787,8 +814,8 @@ async function openImage(id){
     <div class="zoombar">
       <button id="zout">−</button><span class="z" id="zval">100%</span><button id="zin">＋</button>
       <button class="wide" id="zto">重置</button>
-      <button class="wide close" id="zclose">关闭</button>
       <label class="hlt"><input type="checkbox" id="hltog" checked/> 高亮</label>
+      <button class="wide close" id="zclose">关闭</button>
     </div></div>`;
   const closeImg=()=>$('#imgHost').innerHTML='';
   $('#ix').onclick=closeImg; $('#zclose').onclick=closeImg;
@@ -888,82 +915,46 @@ let aliasSel=null;       // selected item id
 let aliasEditAid=null;   // alias id being inline-edited
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 function aliasCount(id){return ALIASES.filter(a=>a.item===id).length;}
-function aliasRenderPicker(){
-  const raw=$('#aliasSearch').value.trim();
-  let list = raw ? search(raw).slice(0,8).map(r=>r.it) : DATA.items.slice(0,6);
-  const host=$('#aliasPickList');
-  if(!list.length){ host.innerHTML=`<div class="pickhint">未找到「${esc(raw)}」，换个词试试</div>`; return; }
-  host.innerHTML=`${raw?'':'<div class="pickhint">常用项目（或直接搜索）：</div>'}<div class="pick">`+list.map(it=>{
-    const n=aliasCount(it.id);
-    return `<div class="row ${aliasSel===it.id?'sel':''}" data-pick="${it.id}">
-      <span>${it.name}</span>
-      <small>${n?`<span class="cnt">别名 ${n}</span>`:`编码 ${it.local_code}`}</small></div>`;
-  }).join('')+`</div>`;
-  host.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{aliasSel=b.dataset.pick;aliasEditAid=null;aliasRenderPicker();aliasRenderEdit();});
-}
-function aliasRenderEdit(){
-  const panel=$('#aliasEditPanel');
-  if(!aliasSel){ panel.classList.add('hidden'); panel.innerHTML=''; return; }
-  panel.classList.remove('hidden');
-  const it=DATA.items.find(x=>x.id===aliasSel);
-  const list=ALIASES.filter(a=>a.item===aliasSel);
-  const rows = list.length ? list.map(a=> a.aid===aliasEditAid
-    ? `<div class="alias-row"><input value="${esc(a.term)}" data-edit="${a.aid}"/>
-         <button class="mini save" data-save="${a.aid}">保存</button>
-         <button class="mini" data-cancel="1">取消</button></div>`
-    : `<div class="alias-row"><span class="t">${esc(a.term)} <span class="pill ${a.by==='user'?'user':'auto'}">${a.by}</span></span>
-         <button class="mini" data-edit-btn="${a.aid}">改</button>
-         <button class="mini danger" data-del="${a.aid}">删</button></div>`
-    ).join('') : `<div class="alias-empty">该项目暂无别名，在下方添加一个。</div>`;
-  panel.innerHTML=`
-    <div class="sel-head"><div><h4>${it.name}</h4><small>编码 ${it.local_code} · 当前别名 ${list.length}</small></div>
-      <button class="mini" data-clearsel="1">× 取消选择</button></div>
-    <div class="section-t" style="margin-top:10px">② 当前别名</div>
-    ${rows}
-    <div class="section-t" style="margin-top:12px">③ 新增别名</div>
-    <div class="field"><input id="newAliasTerm" placeholder="别名/简写，如「${it.name.slice(0,3)}」的常用叫法"/>
-      <button class="btn primary" id="addAliasBtn">添加</button></div>`;
-  panel.querySelector('[data-clearsel]').onclick=()=>{aliasSel=null;aliasEditAid=null;aliasRenderEdit();aliasRenderPicker();};
-  panel.querySelectorAll('[data-edit-btn]').forEach(b=>b.onclick=()=>{aliasEditAid=+b.dataset.editBtn;aliasRenderEdit();});
-  // delete with undo
-  panel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
-    const id=+b.dataset.del, i=ALIASES.findIndex(a=>a.aid===id);
-    if(i<0) return;
+// 绑定卡片内内联别名编辑器（作用域限定在该卡片内），增删改后仅原位重渲染该卡片
+function bindAliasEditor(scope, id){
+  const it=DATA.items.find(x=>x.id===id); if(!it) return;
+  scope.onclick=e=>e.stopPropagation();     // 别名区点击不触发卡片详情
+  scope.querySelector('[data-clearsel]').onclick=()=>{aliasSel=null;aliasEditAid=null;rerenderCard(id);};
+  scope.querySelectorAll('[data-edit-btn]').forEach(b=>b.onclick=()=>{aliasEditAid=+b.dataset.editBtn;rerenderCard(id);});
+  scope.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    const aid=+b.dataset.del, i=ALIASES.findIndex(a=>a.aid===aid); if(i<0) return;
     const removed=Object.assign({}, ALIASES[i]);
-    ALIASES.splice(i,1); saveAliases();
-    aliasEditAid=null; aliasRenderEdit(); aliasRenderPicker();
+    ALIASES.splice(i,1); saveAliases(); aliasEditAid=null; rerenderCard(id);
     toast('已删除「'+esc(removed.term)+'」', {label:'撤销', cb:()=>{
       ALIASES.push({aid:++AID, term:removed.term, item:removed.item, by:removed.by, w:removed.w});
-      saveAliases(); aliasRenderEdit(); aliasRenderPicker(); toast('已恢复「'+esc(removed.term)+'」');
+      saveAliases(); rerenderCard(id); toast('已恢复「'+esc(removed.term)+'」');
     }});
   });
-  // inline edit save (Enter=保存, Esc=取消, 空值禁用)
-  function doSave(id){
-    const inp=panel.querySelector('[data-edit="'+id+'"]'); if(!inp) return;
+  function doSave(aid){
+    const inp=scope.querySelector('[data-edit="'+aid+'"]'); if(!inp) return;
     const v=inp.value.trim();
     if(!v){toast('别名不能为空');return;}
-    if(ALIASES.some(a=>a.aid!==id&&a.item===aliasSel&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
-    const a=ALIASES.find(x=>x.aid===id); a.term=v; a.by='user'; a.w=3; saveAliases();
-    aliasEditAid=null; toast('已修改为「'+esc(v)+'」'); aliasRenderEdit();
+    if(ALIASES.some(a=>a.aid!==aid&&a.item===id&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
+    const a=ALIASES.find(x=>x.aid===aid); a.term=v; a.by='user'; a.w=3; saveAliases();
+    aliasEditAid=null; toast('已修改为「'+esc(v)+'」'); rerenderCard(id);
   }
-  panel.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>doSave(+b.dataset.save));
-  const c=panel.querySelector('[data-cancel]'); if(c)c.onclick=()=>{aliasEditAid=null;aliasRenderEdit();};
-  const ei=panel.querySelector('[data-edit]');
-  if(ei){ const said=aliasEditAid, sb=panel.querySelector('[data-save]');
+  scope.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>doSave(+b.dataset.save));
+  const c=scope.querySelector('[data-cancel]'); if(c)c.onclick=()=>{aliasEditAid=null;rerenderCard(id);};
+  const ei=scope.querySelector('[data-edit]');
+  if(ei){ const said=aliasEditAid, sb=scope.querySelector('[data-save]');
     const updE=()=>{ if(sb) sb.disabled=!ei.value.trim(); }; ei.addEventListener('input',updE); updE();
-    ei.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(!sb||!sb.disabled) doSave(said);} else if(e.key==='Escape'){aliasEditAid=null;aliasRenderEdit();} });
+    ei.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(!sb||!sb.disabled) doSave(said);} else if(e.key==='Escape'){aliasEditAid=null;rerenderCard(id);} });
     ei.focus(); ei.setSelectionRange(ei.value.length, ei.value.length);
   }
-  // add (Enter 提交, 空值禁用, 添加后自动聚焦可连续录)
-  const addInp=panel.querySelector('#newAliasTerm'), addBtn=panel.querySelector('#addAliasBtn');
+  const addInp=scope.querySelector('.newAliasTerm'), addBtn=scope.querySelector('.addAliasBtn');
   function doAdd(){
     const v=addInp.value.trim();
     if(!v){toast('请输入别名');return;}
-    if(ALIASES.some(a=>a.item===aliasSel&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
-    ALIASES.push({aid:++AID,term:v,item:aliasSel,by:'user',w:3}); saveAliases();
+    if(ALIASES.some(a=>a.item===id&&norm(a.term)===norm(v))){toast('该别名已存在');return;}
+    ALIASES.push({aid:++AID,term:v,item:id,by:'user',w:3}); saveAliases();
     toast('已添加：'+esc(v)+' → '+esc(it.name)+'（已本地保存）');
-    aliasEditAid=null; aliasRenderEdit(); aliasRenderPicker();
-    const ni=panel.querySelector('#newAliasTerm'); if(ni) ni.focus();
+    aliasEditAid=null; rerenderCard(id);
+    const ni=document.querySelector('#results .card[data-card="'+id+'"] .newAliasTerm'); if(ni) ni.focus();
   }
   addBtn.onclick=doAdd;
   const updA=()=>{ addBtn.disabled=!addInp.value.trim(); }; addInp.addEventListener('input',updA); updA();
@@ -981,10 +972,9 @@ function renderDataStat(){
 document.querySelectorAll('.tabbar button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on');
-  ['search','version','alias','data'].forEach(s=>document.getElementById('scr-'+s).classList.add('hidden'));
+  ['search','version','data'].forEach(s=>document.getElementById('scr-'+s).classList.add('hidden'));
   document.getElementById('scr-'+b.dataset.scr).classList.remove('hidden');
   if(b.dataset.scr==='version')renderVersions();
-  if(b.dataset.scr==='alias'){aliasRenderPicker();aliasRenderEdit();}
   if(b.dataset.scr==='data')renderDataStat();
 });
 
@@ -1003,9 +993,6 @@ window.toast=toast;
 function debounce(fn,ms){let t;return function(){clearTimeout(t);t=setTimeout(fn,ms);};}
 $('#q').addEventListener('input',debounce(doSearch,150));
 $('#clr').onclick=()=>{$('#q').value='';doSearch();$('#q').focus();};
-$('#aliasSearch').addEventListener('input',aliasRenderPicker);
-$('#aliasSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const f=document.querySelector('#aliasPickList [data-pick]'); if(f) f.click(); } });
-$('#aliasSearchClr').onclick=()=>{$('#aliasSearch').value='';aliasRenderPicker();$('#aliasSearch').focus();};
 $('#resetAliasBtn').onclick=()=>{ try{localStorage.removeItem(LS_KEY);}catch(e){} ALIASES.length=0;AID=0;seedDefaults();saveAliases();aliasSel=null;aliasEditAid=null;toast('已重置别名为默认');doSearch(); };
 renderFilters(); renderVerbar(); doSearch();
 {const b=document.getElementById('boot'); if(b) b.remove();}
