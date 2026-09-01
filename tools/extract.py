@@ -8,26 +8,30 @@ doc=pymupdf.open(SRC)
 code15=re.compile(r'^\d{15}$')
 han=re.compile(r'[一-鿿]')
 
-# ---- 大项分类：正文中形如「一、综合医疗服务类」的一级标题（跳过前言页 1-6）----
+# ---- 分类：数字前缀=编码前2位；字母前缀按文档「位置」归入所处的数字分类，末尾附录段归「其他项目」----
 import bisect
-cat_pat=re.compile(r'^([一二三四五六七八九十]+)、\s*(.+?(?:类|项目))$')
-cats=[]  # (start_page(1-based), title)
-seen_title=set()
-for pno in range(6, doc.page_count):
-    for ln in doc[pno].get_text().splitlines():
-        ln=ln.strip()
-        m=cat_pat.match(ln)
-        if m and len(ln)<=16:
-            title=m.group(1)+'、'+m.group(2)
-            if title not in seen_title:
-                seen_title.add(title); cats.append((pno+1, title))
-cats.sort()
-CAT_STARTS=[c[0] for c in cats]
-CATEGORIES=[{"no":i+1,"title":t,"start_page":p} for i,(p,t) in enumerate(cats)]
-def cat_of(page_no):
-    i=bisect.bisect_right(CAT_STARTS, page_no)-1
-    return (i+1) if i>=0 else 0        # 1-based 大项序号，0=未归类
-print("categories:", [(p,t) for p,t in cats])
+MAJORS={1:"综合医疗服务类",2:"医技诊疗类",3:"临床诊疗类",4:"中医及民族医诊疗类",5:"其他项目"}
+# 名称取自 PDF 各大类「本类说明：…包括 A、B、…」原文（未改动措辞）
+SUBCATS=[
+  ("11","一般医疗服务",1),("12","一般检查治疗",1),("13","社区卫生及预防保健项目",1),("14","其它医疗服务项目",1),
+  ("21","医学影像",2),("22","超声检查",2),("23","核医学",2),("24","放射治疗",2),("25","检验",2),("26","血型与配血",2),("27","病理检查",2),
+  ("31","临床各系统诊疗",3),("32","经血管介入诊疗",3),("33","手术治疗",3),("34","物理治疗与康复",3),
+  ("41","中医外治",4),("42","中医骨伤",4),("43","针刺",4),("44","灸法",4),("45","推拿疗法",4),("46","中医肛肠",4),("47","中医特殊疗法",4),("48","中医综合",4),("49","民族医诊疗",4),
+  ("50","其他项目",5),
+]
+APPENDIX="50"
+SUB_SET={c for c,_,_ in SUBCATS}
+CATEGORIES=[{"code":c,"name":n,"major":mj,"major_name":MAJORS[mj]} for c,n,mj in SUBCATS]
+# 数字分类的页码区间（正文顺序）在收集完项目后计算；此处占位
+NUM_START=[]   # [(start_page, code), ...] 升序
+APPX_START=[10**9]
+def cat_of(local_code, page_no):
+    p=(local_code or "")[:2]
+    if p in SUB_SET and p!=APPENDIX: return p          # 数字编码直接归类
+    # 字母编码：按文档位置
+    if page_no>=APPX_START[0]: return APPENDIX          # 末尾附录段 → 其他项目
+    i=bisect.bisect_right([s for s,_ in NUM_START], page_no)-1
+    return NUM_START[i][1] if i>=0 else NUM_START[0][1]
 def clean(s): return (s or '').replace('\n','').strip()
 def only_han(s): return ''.join(han.findall(s or ''))
 def py_full(s):
@@ -69,7 +73,6 @@ for pno in range(doc.page_count):
               "connotation":c[4],"exclusion":c[5],"unit":c[6],"note":c[7],
               "prices":[c[8],c[9],c[10],c[11],c[12]],"remark":c[13] if len(c)>13 else "",
               "page_no":pno+1,
-              "catno":cat_of(pno+1),
               "py":py_full(name),"init":py_init(name),
               "npy":py_full(c[1]),"ninit":py_init(c[1]),
               "hl":hl,
@@ -83,6 +86,19 @@ for it in items:
     k=(it["national_code"], it["local_code"], it["name"])
     if k in seen: continue
     seen.add(k); uniq.append(it)
+
+# ---- 计算数字分类页码区间与附录起点，再给每个项目定位分类 ----
+num_min={}; num_max=0
+for it in uniq:
+    p2=it["local_code"][:2]
+    if p2 in SUB_SET and p2!=APPENDIX:
+        num_min[p2]=min(num_min.get(p2,10**9), it["page_no"])
+        num_max=max(num_max, it["page_no"])
+NUM_START[:] = sorted((pg,code) for code,pg in num_min.items())
+APPX_START[0] = num_max+1        # 数字分类之后（末尾附录段）→ 其他项目
+for it in uniq:
+    it["cat"]=cat_of(it["local_code"], it["page_no"])
+print("NUM_START:", NUM_START[:3], "... APPX_START:", APPX_START[0])
 
 out={"version_label":"2024版",
      "source_file":"2024年6月版《成都市医疗服务项目价格汇编（2024版）》.pdf",

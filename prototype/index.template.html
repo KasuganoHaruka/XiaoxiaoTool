@@ -40,6 +40,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .tabbar button.on{color:var(--brand);font-weight:700}
 .hidden{display:none!important}
 /* ---------- search ---------- */
+.searchhead{position:sticky;top:0;z-index:20;background:var(--bg);margin:-12px -12px 0;padding:12px 12px 8px;box-shadow:0 8px 10px -8px rgba(15,23,42,.18)}
+.searchhead::before{content:'';position:absolute;left:0;right:0;top:-13px;height:14px;background:var(--bg)}
 .searchbox{position:relative}
 .searchbox input{width:100%;padding:11px 38px 11px 36px;border:1px solid var(--line);
   border-radius:12px;font-size:15px;background:#fff;outline:none}
@@ -80,15 +82,22 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .dd-btn b{color:#4f46e5;font-weight:700}
 .dd-btn .caret{opacity:.6;font-size:10px}
 .dd.open .dd-btn{background:#e0e7ff;border-color:#c7d2fe}
-.dd-panel{position:absolute;top:calc(100% + 5px);left:0;z-index:30;min-width:210px;max-height:320px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.16);padding:8px}
-.dd-panel .dd-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8;padding:2px 6px 6px}
+.dd-panel{position:absolute;top:calc(100% + 5px);left:0;z-index:30;min-width:206px;max-width:280px;max-height:340px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.16);padding:8px}
+.dd-panel .dd-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:#94a3b8;padding:2px 6px 6px;white-space:nowrap}
 .dd-panel .dd-head a{color:#4f46e5;cursor:pointer;text-decoration:none}
 .dd-fixed{font-size:11px;color:#64748b;background:#f8fafc;border-radius:7px;padding:6px 8px;margin-bottom:6px;line-height:1.7}
 .dd-fixed b{background:#eef2ff;color:#3730a3;border-radius:5px;padding:1px 6px;margin-right:4px;display:inline-block}
-.dd-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:#334155}
+.dd-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:#334155;white-space:nowrap}
 .dd-opt:hover{background:#f1f5f9}
 .dd-opt input{margin:0}
 .dd-opt small{margin-left:auto;color:#94a3b8;font-size:11px}
+.dd-grp{margin-bottom:4px}
+.dd-glabel{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:#0f172a;background:#f1f5f9;white-space:nowrap}
+.dd-glabel input{margin:0}
+.dd-opt.sub{padding-left:20px}
+.dd-opt .code{flex:none;font-size:10px;color:#64748b;background:#eef2f7;border-radius:4px;padding:1px 5px;font-family:ui-monospace,Menlo,monospace}
+.dd-opt .nm{flex:none}
+.ddCat-wide .dd-panel{min-width:250px}
 /* result card */
 .rescount{font-size:12px;color:var(--sub);margin:10px 2px 6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(20,30,50,.04)}
@@ -96,9 +105,10 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .card .meta{font-size:11px;color:var(--sub);margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
 .card .meta code{background:#f1f4f9;border-radius:5px;padding:0 5px;font-size:10px}
 .cardinfo{margin:0 0 8px;display:flex;flex-direction:column;gap:4px}
-.cardinfo .ci{display:flex;gap:6px;font-size:12px;line-height:1.5}
-.cardinfo .ci .k{flex:none;color:#0369a1;background:#e0f2fe;border-radius:5px;padding:1px 6px;height:fit-content;font-size:10px;margin-top:1px}
-.cardinfo .ci .v{color:#475569;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cardinfo .ci{display:flex;gap:6px;align-items:flex-start;font-size:12px;line-height:1.5}
+.cardinfo .ci .k{flex:none;color:#0369a1;background:#e0f2fe;border-radius:5px;padding:1px 6px;font-size:10px;margin-top:2px}
+.cardinfo .ci .v{flex:1;min-width:0;color:#475569;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cardinfo .ci .v.vnull{color:#cbd5e1}
 .pricegrid{border:1px solid var(--line);border-radius:10px;overflow-x:auto;overflow-y:hidden;font-size:12px;-webkit-overflow-scrolling:touch}
 .pricegrid table{width:auto;min-width:100%;border-collapse:collapse}
 .pricegrid th,.pricegrid td{padding:6px 6px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}
@@ -111,11 +121,25 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .pricegrid .nonnum{color:var(--warn)}
 .pricegrid .chg-up{color:var(--up)}
 .pricegrid .chg-down{color:var(--down)}
-.card .actions{display:flex;gap:8px;margin-top:9px}
+.pricestrip{display:flex;gap:5px;margin-top:2px}
+.pricestrip .pc{flex:1;min-width:0;text-align:center;background:#f6f8fc;border:1px solid var(--line);border-radius:9px;padding:5px 2px}
+.pricestrip .lv{display:block;font-size:9px;color:var(--sub);margin-bottom:1px;white-space:nowrap}
+.pricestrip .pv{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.2;word-break:break-all}
+.pricestrip .pv.nonnum{font-size:11px;font-weight:600;color:var(--warn)}
+.pricestrip .pv.z{color:#cbd5e1}
+.card .actions{display:flex;gap:8px;margin-top:9px;align-items:center}
+.card .detail-link{margin-left:auto;font-size:12px;color:var(--brand);font-weight:600;cursor:pointer;padding:4px 2px}
+.card .detail-link:active{opacity:.6}
 .btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:5px}
 .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
 .btn.ghost{background:#f6f8fc}
 .empty{text-align:center;color:var(--sub);font-size:13px;padding:40px 10px}
+#boot{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);color:var(--sub);font-size:13px}
+.bootspin{width:30px;height:30px;border:3px solid #e2e8f0;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loadmore{display:block;width:100%;margin:4px 0 14px;padding:11px;border:1px dashed var(--line);background:#f8fafc;color:#4f46e5;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer}
+.loadmore:hover{background:#eef2ff}
+.card h3 mark{background:#fde68a;color:inherit;border-radius:3px;padding:0 1px}
 .empty .big{font-size:34px;margin-bottom:8px}
 /* detail sheet */
 .sheet-mask{position:absolute;inset:0;background:rgba(15,20,30,.4);z-index:30;display:flex;align-items:flex-end}
@@ -131,12 +155,14 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 /* page image modal (zoomable + highlight) */
 .img-mask{position:absolute;inset:0;background:rgba(8,12,18,.9);z-index:40;display:flex;flex-direction:column}
 .img-mask .bar{color:#fff;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px;flex:none}
-.img-mask .bar .x{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer}
+.img-mask .bar .x{border:0;background:rgba(255,255,255,.16);color:#fff;width:30px;height:30px;border-radius:50%;padding:0;font-size:15px;line-height:1;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center}
+.img-mask .bar .x:active{background:rgba(255,255,255,.3)}
 .viewport{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab;background:#0b0f14}
 .viewport.drag{cursor:grabbing}
 .stage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;background:#fff}
 .stage img,.stage canvas{display:block;background:#fff;-webkit-user-drag:none;user-select:none;pointer-events:none}
-.pdf-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:13px;pointer-events:none}
+.pdf-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;color:#cbd5e1;font-size:13px;pointer-events:none}
+.ldspin{width:16px;height:16px;border:2px solid rgba(203,213,225,.35);border-top-color:#cbd5e1;border-radius:50%;animation:spin .8s linear infinite}
 .hl{position:absolute;border-radius:2px;pointer-events:none}
 .hl.row{background:rgba(14,165,164,.10);outline:1.5px dashed rgba(45,212,191,.7)}
 .hl.name{background:rgba(37,99,235,.20);outline:2.5px solid rgba(96,165,250,.95);animation:pulse 1.6s ease-in-out infinite}
@@ -146,7 +172,9 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.5)}50%{box-shadow:0 0 0 6px rgba(96,165,250,0)}}
 .zoombar{flex:none;display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(16,21,28,.96);color:#cbd5e1;font-size:12px}
 .zoombar button{border:0;background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.zoombar button.wide{width:auto;padding:0 12px;font-size:12px}
+.zoombar button.wide{width:auto;padding:0 14px;font-size:13px}
+.zoombar button.close{background:rgba(255,255,255,.22)}
+.zoombar button.close:active{background:rgba(255,255,255,.34)}
 .zoombar .z{min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 .zoombar .hlt{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
 .zoombar .hlt input{accent-color:#60a5fa}
@@ -237,21 +265,24 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 </style>
 </head>
 <body>
+<div id="boot"><div class="bootspin"></div><div>正在加载数据…</div></div>
 <div class="phone">
   <div class="statusbar"><span><span class="dot"></span>本地数据 · 离线</span><span>9:41　100% ▮</span></div>
   <div class="appbar">
     <h1>医疗价格 · 多版本查询</h1>
-    <p>数据不出端 · 零业务网络请求 · 安卓 APK 原型</p>
+    <p>成都 2024 版 · 全量 <b id="hcnt">8124</b> 项 · 本地离线 · 数据不出端</p>
   </div>
 
   <!-- ===== SEARCH SCREEN ===== -->
   <div class="screen" id="scr-search">
-    <div class="searchbox">
-      <span class="mag">🔍</span>
-      <input id="q" placeholder="项目名 / 编码 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off"/>
-      <button class="clr" id="clr">×</button>
+    <div class="searchhead">
+      <div class="searchbox">
+        <span class="mag">🔍</span>
+        <input id="q" placeholder="项目名 / 编码 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
+        <button class="clr" id="clr">×</button>
+      </div>
+      <div class="filters" id="filters"></div>
     </div>
-    <div class="filters" id="filters"></div>
     <div class="verbar" id="verbar"></div>
     <div id="suggwrap"></div>
     <div class="rescount" id="rescount"></div>
@@ -329,7 +360,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div>
     <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
   </div>
-  <a class="dlbtn" href="medprice-query-0.4.0.apk" download="医疗价格查询-0.4.0.apk">⬇ 下载安卓 APK<small>v0.4.0 · 全量8124项 · ~5.4 MB</small></a>
+  <a class="dlbtn" href="medprice-query-0.5.0.apk" download="医疗价格查询-0.5.0.apk">⬇ 下载安卓 APK<small>v0.5.0 · 全量8124项 · ~5.4 MB</small></a>
   <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
   <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
     数据取自《成都市医疗服务项目价格汇编（2024版）》全量 <b id="cnt">…</b> 个项目、共 <b id="pcnt">…</b> 页原文；结构化数据内嵌本页，原文页由内置 PDF 经 pdf.js 按需矢量渲染并高亮，检索/对比/核验均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
@@ -362,6 +393,7 @@ const LEVELS = DATA.price_levels;               // 三甲/三乙/二甲/二乙/�
 const V_MAIN = DATA.version_label;              // 2024版
 const PAGE_DIMS = DATA.page_dims||{};           // 每有项目的页：[宽,高]（PDF 点）
 document.getElementById('cnt').textContent = DATA.items.length;
+{const h=document.getElementById('hcnt'); if(h) h.textContent=DATA.items.length;}
 {const pc=$dqs('#pcnt'); if(pc) pc.textContent = DATA.page_count || Object.keys(PAGE_DIMS).length;}
 
 // ================= PDF 原文渲染（pdf.js，内置 doc.pdf，离线按需渲染） =================
@@ -373,14 +405,21 @@ function getPdf(){
   return _PDFPROM;
 }
 // 渲染指定页到 canvas；R=超采样倍数（越大越清晰）。返回 {canvas, wpt, hpt}
+// 带 LRU 缓存：同页重开直接复用已渲染画布，免二次渲染
+const _pageCache=new Map(); const _PAGE_CACHE_MAX=8;
 async function renderPdfPage(pageNo, R){
+  const key=pageNo+'@'+R;
+  if(_pageCache.has(key)){ const v=_pageCache.get(key); _pageCache.delete(key); _pageCache.set(key,v); return v; }
   const pdf=await getPdf();
   const page=await pdf.getPage(pageNo);
   const vp=page.getViewport({scale:R});
   const canvas=document.createElement('canvas');
   canvas.width=Math.ceil(vp.width); canvas.height=Math.ceil(vp.height);
   await page.render({canvasContext:canvas.getContext('2d',{alpha:false}), viewport:vp}).promise;
-  return {canvas, wpt:vp.width/R, hpt:vp.height/R};
+  const rec={canvas, wpt:vp.width/R, hpt:vp.height/R};
+  _pageCache.set(key,rec);
+  if(_pageCache.size>_PAGE_CACHE_MAX){ const k=_pageCache.keys().next().value; _pageCache.delete(k); }
+  return rec;
 }
 function $dqs(s){return document.querySelector(s);}
 
@@ -492,13 +531,18 @@ COLDEFS.forEach(c=>OPTCOL[c.k]=false);
 (function loadCols(){ try{ const s=JSON.parse(localStorage.getItem(COLS_KEY)||'{}'); COLDEFS.forEach(c=>{ if(typeof s[c.k]==='boolean') OPTCOL[c.k]=s[c.k]; }); }catch(e){} })();
 function saveCols(){ try{ localStorage.setItem(COLS_KEY, JSON.stringify(OPTCOL)); }catch(e){} }
 
-// ---- 大项分类：多选，默认全选；用户修改后持久化，仅在选中的大项内检索 ----
-const CATEGORIES=DATA.categories||[];
-const CAT_KEY='medprice.cats.v1';
-const CATSEL=new Set(CATEGORIES.map(c=>c.no));      // 选中的大项 no 集合
-(function loadCatSel(){ try{ const s=JSON.parse(localStorage.getItem(CAT_KEY)); if(Array.isArray(s)){ CATSEL.clear(); s.forEach(n=>{ if(CATEGORIES.some(c=>c.no===n)) CATSEL.add(n); }); } }catch(e){} })();
+// ---- 分类（按项目编码前 2 位）：多选，默认全选；用户修改后持久化，仅在选中的分类内检索 ----
+const CATEGORIES=DATA.categories||[];               // [{code,name,major,major_name}]
+const CAT_KEY='medprice.cats.v2';
+const CATSEL=new Set(CATEGORIES.map(c=>c.code));     // 选中的分类 code 集合
+(function loadCatSel(){ try{ const s=JSON.parse(localStorage.getItem(CAT_KEY)); if(Array.isArray(s)){ CATSEL.clear(); s.forEach(c=>{ if(CATEGORIES.some(x=>x.code===c)) CATSEL.add(c); }); if(CATSEL.size===0) CATEGORIES.forEach(c=>CATSEL.add(c.code)); } }catch(e){} })();
 function saveCatSel(){ try{ localStorage.setItem(CAT_KEY, JSON.stringify([...CATSEL])); }catch(e){} }
-function catCount(no){ return DATA.items.reduce((a,it)=>a+(it.catno===no?1:0),0); }
+const _catCnt=(function(){ const m={}; DATA.items.forEach(it=>m[it.cat]=(m[it.cat]||0)+1); return m; })();
+function catCount(code){ return _catCnt[code]||0; }
+const _catByCode=(function(){ const m={}; CATEGORIES.forEach(c=>m[c.code]=c); return m; })();
+function catLabel(code){ const c=_catByCode[code]; return c? `${c.major_name} · ${c.code} ${c.name}` : '—'; }
+// 按大类分组（保持 categories 顺序）
+function catGroups(){ const g=[]; let cur=null; CATEGORIES.forEach(c=>{ if(!cur||cur.major!==c.major){ cur={major:c.major,name:c.major_name,items:[]}; g.push(cur);} cur.items.push(c); }); return g; }
 
 function search(raw){
   const q=norm(raw);
@@ -509,8 +553,9 @@ function search(raw){
   const aliasIds=new Set(aliasHit.map(a=>a.item));
   const optKeys=COLDEFS.map(c=>c.k).filter(k=>OPTCOL[k]);   // 已勾选的可选列
   const catAll=CATSEL.size===CATEGORIES.length;             // 全选时不过滤
+  const hasHan=/[一-鿿]/.test(q);                   // 含汉字才启用散列子序列（避免 rbc 这类纯字母凑首字母误命中）
   for(const it of DATA.items){
-    if(!catAll && !CATSEL.has(it.catno)) continue;          // 仅在选中的大项内检索
+    if(!catAll && !CATSEL.has(it.cat)) continue;            // 仅在选中的分类内检索
     // ① 默认四列：项目名称 / 国家项目名称 / 项目编码 / 国家项目编码（含子串）
     if(it._nm.includes(q)||it._nt.includes(q)||it._lc.includes(q)||it._nc.includes(q)){ add(it,'exact',1); continue; }
     // ② 名称拼音 / 首字母
@@ -520,15 +565,20 @@ function search(raw){
     if(aliasIds.has(it.id)){ add(it,'alias',3); continue; }
     // ④ 可选列（用户勾选后纳入）：内涵/除外/单位/说明/价格/备注 的直接子串命中
     if(optKeys.length && optKeys.some(k=> it._opt[k] && it._opt[k].includes(q))){ add(it,'field',4); continue; }
-    // ⑤ 智能子序列（缩写 / 同音错字 / 汉字+拼音混合）—仅对名称
-    if(q.length>=2 && (smartMatch(it._cn,q)||smartMatch(it._cnat,q))){ add(it,'smart',5); continue; }
+    // ⑤ 智能子序列（缩写 / 同音错字 / 汉字+拼音混合）—仅对含汉字的查询启用
+    if(hasHan && q.length>=2 && (smartMatch(it._cn,q)||smartMatch(it._cnat,q))){ add(it,'smart',5); continue; }
     // ⑥ 名称模糊（编辑距离≤2）
     if(q.length>=2 && q.length<=8){
       const dist=Math.min(lev(q,it._nm.slice(0,q.length+2)), lev(q,it._nm));
       if(dist<=2) add(it,'fuzzy',6);
     }
   }
-  return [...out.values()].sort((a,b)=> a.rank-b.rank || a.it.name.localeCompare(b.it.name));
+  // 相关度：同档内 整名命中<前缀命中<包含<其它；再按名称短、编码序
+  return [...out.values()].map(e=>{
+    const nm=e.it._nm; let rel=3;
+    if(nm===q) rel=0; else { const p=nm.indexOf(q); if(p===0) rel=1; else if(p>0) rel=2; }
+    e.rel=rel; e.nlen=e.it.name.length; return e;
+  }).sort((a,b)=> a.rank-b.rank || a.rel-b.rel || a.nlen-b.nlen || a.it.local_code.localeCompare(b.it.local_code));
 }
 const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],field:['内容','mt-field'],smart:['联想','mt-smart'],fuzzy:['模糊','mt-fuzzy']};
 
@@ -551,15 +601,21 @@ document.addEventListener('click',()=>document.querySelectorAll('.dd.open').forE
 
 function renderFilters(){
   $('#filters').innerHTML=`<div class="dd" id="ddCat"></div><div class="dd" id="ddCol"></div>`;
-  // —— 大项分类 ——
+  // —— 分类（按项目编码前 2 位）——
   mountDropdown($('#ddCat'),{
-    btnHTML:()=>{ const n=CATSEL.size,t=CATEGORIES.length; return `大项范围 <b>${n===t?'全部':n+'/'+t}</b><span class="caret">▼</span>`; },
-    panelHTML:()=>`<div class="dd-head"><span>在选中的大项内检索</span><span><a data-all>全选</a> · <a data-none>清空</a></span></div>`+
-      CATEGORIES.map(c=>`<label class="dd-opt"><input type="checkbox" data-cat="${c.no}" ${CATSEL.has(c.no)?'checked':''}/>${c.title}<small>${catCount(c.no)}</small></label>`).join(''),
+    btnHTML:()=>{ const n=CATSEL.size,t=CATEGORIES.length; return `项目分类 <b>${n===t?'全部':n+'/'+t}</b><span class="caret">▼</span>`; },
+    panelHTML:()=>`<div class="dd-head"><span>按编码前2位</span><span class="acts"><a data-all>全选</a> · <a data-none>清空</a></span></div>`+
+      catGroups().map(g=>{
+        const allOn=g.items.every(c=>CATSEL.has(c.code));
+        const rows=g.items.map(c=>{const nm=c.name.length>6?c.name.slice(0,5)+'..':c.name; return `<label class="dd-opt sub" title="${c.name}"><input type="checkbox" data-cat="${c.code}" ${CATSEL.has(c.code)?'checked':''}/><span class="code">${c.code}</span><span class="nm">${nm}</span><small>${catCount(c.code)}</small></label>`;}).join('');
+        return `<div class="dd-grp"><label class="dd-glabel"><input type="checkbox" data-grp="${g.major}" ${allOn?'checked':''}/>${g.name}</label>${rows}</div>`;
+      }).join(''),
     bind:(panel,paint)=>{
-      panel.querySelectorAll('input[data-cat]').forEach(cb=>cb.onchange=e=>{ const no=+e.target.dataset.cat; e.target.checked?CATSEL.add(no):CATSEL.delete(no); if(CATSEL.size===0){CATSEL.add(no);e.target.checked=true;} saveCatSel(); paint(); doSearch(); });
-      panel.querySelector('[data-all]').onclick=()=>{ CATEGORIES.forEach(c=>CATSEL.add(c.no)); saveCatSel(); paint(); doSearch(); };
-      panel.querySelector('[data-none]').onclick=()=>{ CATSEL.clear(); CATSEL.add(CATEGORIES[0].no); saveCatSel(); paint(); doSearch(); };
+      const commit=()=>{ saveCatSel(); paint(); doSearch(); };   // 允许取消到 0（不再自动全选）
+      panel.querySelectorAll('input[data-cat]').forEach(cb=>cb.onchange=e=>{ const code=e.target.dataset.cat; e.target.checked?CATSEL.add(code):CATSEL.delete(code); commit(); });
+      panel.querySelectorAll('input[data-grp]').forEach(cb=>cb.onchange=e=>{ const mj=+e.target.dataset.grp, on=e.target.checked; CATEGORIES.filter(c=>c.major===mj).forEach(c=>on?CATSEL.add(c.code):CATSEL.delete(c.code)); commit(); });
+      panel.querySelector('[data-all]').onclick=()=>{ CATEGORIES.forEach(c=>CATSEL.add(c.code)); commit(); };
+      panel.querySelector('[data-none]').onclick=()=>{ CATSEL.clear(); commit(); };
     }
   });
   // —— 匹配范围（列）——
@@ -611,41 +667,75 @@ function priceGrid(it){
   }).join('');
   return `<div class="pricegrid"><table>${head}<tbody>${rows}</tbody></table></div>`;
 }
+// 单版本紧凑价格条：五格「档位+价」，比表格矮一半、更易扫读
+function priceStrip(it){
+  const l=activeVersions()[0]||V_MAIN, rec=it.versions[l];
+  if(!rec) return '';
+  const cells=rec.prices.map((p,i)=>{
+    const isNum=/^\d+(\.\d+)?$/.test(p);
+    const cls=!p?'z':(isNum?'':'nonnum');
+    return `<div class="pc"><span class="lv">${LEVELS[i]}</span><span class="pv ${cls}">${p?esc(p):'—'}</span></div>`;
+  }).join('');
+  return `<div class="pricestrip">${cells}</div>`;
+}
 function resultCard(r){
   const it=r.it, [ml,mc]=MT[r.type];
-  const conn=it.connotation? `<div class="ci"><span class="k">内涵</span><span class="v">${esc(it.connotation)}</span></div>`:'';
-  const note=it.note? `<div class="ci"><span class="k">说明</span><span class="v">${esc(it.note)}</span></div>`:'';
-  const info=(conn||note)? `<div class="cardinfo">${conn}${note}</div>`:'';
+  const ciRow=(k,val)=>`<div class="ci"><span class="k">${k}</span><span class="v${val?'':' vnull'}">${val?hlText(val):'—'}</span></div>`;
+  const info=`<div class="cardinfo">${ciRow('内涵',it.connotation)}${ciRow('说明',it.note)}</div>`;
+  const prices = activeVersions().length>1 ? priceGrid(it) : priceStrip(it);
   return `<div class="card" data-card="${it.id}">
-    <h3>${it.name}<span class="matchtype ${mc}">${ml}</span></h3>
-    <div class="meta"><span>编码 <code>${it.local_code}</code></span><span>国家码 <code>${it.national_code}</code></span><span>单位 ${it.unit||'—'}</span></div>
+    <h3>${hlName(it.name)}<span class="matchtype ${mc}">${ml}</span></h3>
+    <div class="meta"><span>编码 <code>${it.local_code}</code></span><span>单位 ${esc(it.unit||'—')}</span></div>
     ${info}
-    ${priceGrid(it)}
+    ${prices}
     <div class="actions">
       <button class="btn primary" data-detail="${it.id}">📄 查看原文</button>
-      <button class="btn ghost" data-more="${it.id}">详情</button>
+      <span class="detail-link" data-more="${it.id}">详情 ›</span>
     </div>
-    <div class="tapmore">点卡片任意处查看详情 ›</div>
   </div>`;
 }
+let LAST=[], SHOWN=0, CURRAW=''; const PAGE_N=50;
+let _moreObs=null;
+// 命中词高亮（高亮所有子串出现处；拼音/联想命中自然不高亮，因为原文里没有该子串）
+function hlText(str){
+  const q=CURRAW, s=String(str==null?'':str); if(!q) return esc(s);
+  const lo=s.toLowerCase(), ql=q.toLowerCase();
+  let out='', i=0, p;
+  while((p=lo.indexOf(ql,i))>=0){ out+=esc(s.slice(i,p))+'<mark>'+esc(s.slice(p,p+q.length))+'</mark>'; i=p+q.length; }
+  return out+esc(s.slice(i));
+}
+const hlName=hlText;
 function doSearch(){
-  const raw=$('#q').value;
+  const raw=$('#q').value; CURRAW=raw.trim();
   let list=search(raw);
   if(onlyChanged) list=list.filter(r=>versionsChanged(r.it));
-  $('#rescount').textContent = raw? `命中 ${list.length} 项 · 版本：${activeVersions().join(' / ')||'（未选）'}` : '';
-  if(!raw){ $('#results').innerHTML=`<div class="empty"><div class="big">🔎</div>输入项目名、编码、拼音或别名开始检索<br><small>可用上方「大项范围」「匹配范围」缩小检索</small></div>`; $('#suggwrap').innerHTML=''; return; }
-  // suggestions: compact horizontal chips (only when >1 result, avoids duplicating the card list)
-  const dcls={exact:'d-exact',pinyin:'d-pinyin',alias:'d-alias',fuzzy:'d-fuzzy'};
+  if(_moreObs){ _moreObs.disconnect(); _moreObs=null; }
+  if(!raw){ LAST=[]; $('#rescount').textContent=''; $('#suggwrap').innerHTML=''; $('#results').innerHTML=`<div class="empty"><div class="big">🔎</div>输入项目名、编码、拼音或别名开始检索<br><small>可用上方「项目分类」「匹配范围」缩小检索</small></div>`; return; }
+  if(CATSEL.size===0){ LAST=[]; $('#rescount').textContent=''; $('#suggwrap').innerHTML=''; $('#results').innerHTML=`<div class="empty"><div class="big">🗂️</div>未选择任何分类<br><small>请在上方「项目分类」中至少勾选一项</small></div>`; return; }
+  $('#rescount').textContent = `命中 ${list.length} 项` + (VERSIONS.length>1? ` · 版本：${activeVersions().join(' / ')||'（未选）'}` : '');
+  const dcls={exact:'d-exact',pinyin:'d-pinyin',alias:'d-alias',field:'d-field',smart:'d-smart',fuzzy:'d-fuzzy'};
   $('#suggwrap').innerHTML = list.length>1? `<div class="sugglabel">联想 · 点按直达</div><div class="suggrow">${list.slice(0,8).map(r=>
-     `<span class="suggchip" data-sugg="${r.it.id}"><span class="dot ${dcls[r.type]}"></span>${r.it.name}</span>`).join('')}</div>`:'';
-  $('#results').innerHTML = list.length? list.map(resultCard).join('')
-     : `<div class="empty"><div class="big">🫥</div>未找到「${raw}」<br><small>可到「别名」页添加映射，越用越准</small></div>`;
+     `<span class="suggchip" data-sugg="${r.it.id}"><span class="dot ${dcls[r.type]||''}"></span>${esc(r.it.name)}</span>`).join('')}</div>`:'';
+  if(!list.length){ LAST=[]; $('#results').innerHTML=`<div class="empty"><div class="big">🫥</div>未找到「${esc(raw)}」<br><small>可到「别名」页添加映射，越用越准</small></div>`; return; }
+  // 增量渲染：首屏 PAGE_N 张，其余「加载更多」/滚动自动加载，避免宽词渲染数千卡片卡死
+  LAST=list; SHOWN=0; $('#results').innerHTML=''; appendResults();
+}
+function appendResults(){
+  const old=$('#loadmore'); if(old) old.remove();
+  const next=LAST.slice(SHOWN, SHOWN+PAGE_N);
+  $('#results').insertAdjacentHTML('beforeend', next.map(resultCard).join(''));
+  SHOWN+=next.length;
+  if(SHOWN<LAST.length){
+    $('#results').insertAdjacentHTML('beforeend', `<button class="loadmore" id="loadmore">还有 ${LAST.length-SHOWN} 项 · 加载更多</button>`);
+    const btn=$('#loadmore'); btn.onclick=appendResults;
+    if('IntersectionObserver' in window){ _moreObs=new IntersectionObserver(es=>{ if(es[0].isIntersecting) appendResults(); },{rootMargin:'300px'}); _moreObs.observe(btn); }
+  } else if(_moreObs){ _moreObs.disconnect(); _moreObs=null; }
   bindCards();
 }
 function bindCards(){
   document.querySelectorAll('#results [data-card]').forEach(c=>c.onclick=()=>openDetail(c.dataset.card));
-  document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=e=>{e.stopPropagation();openImage(b.dataset.detail);});
-  document.querySelectorAll('[data-more]').forEach(b=>b.onclick=e=>{e.stopPropagation();openDetail(b.dataset.more);});
+  document.querySelectorAll('#results [data-detail]').forEach(b=>b.onclick=e=>{e.stopPropagation();openImage(b.dataset.detail);});
+  document.querySelectorAll('#results [data-more]').forEach(b=>b.onclick=e=>{e.stopPropagation();openDetail(b.dataset.more);});
   document.querySelectorAll('[data-sugg]').forEach(b=>b.onclick=()=>openDetail(b.dataset.sugg));
 }
 
@@ -653,17 +743,20 @@ function bindCards(){
 function openDetail(id){
   const it=DATA.items.find(x=>x.id===id);
   $('#sheetHost').innerHTML=`<div class="sheet-mask" id="sm"><div class="sheet">
-    <div class="hd"><h2>${it.name}</h2><button class="x" id="sx">×</button></div>
+    <div class="hd"><h2>${esc(it.name)}</h2><button class="x" id="sx">×</button></div>
     <div class="bd">
-      <div class="kv"><b>项目编码</b>${it.local_code}　<b>国家码</b>${it.national_code}</div>
-      <div class="kv"><b>计价单位</b>${it.unit||'—'}</div>
+      <div class="kv"><b>项目编码</b>${esc(it.local_code)}　<b>国家码</b>${esc(it.national_code)}</div>
+      ${it.national_name&&it.national_name!==it.name?`<div class="kv"><b>国家项目名称</b>${esc(it.national_name)}</div>`:''}
+      <div class="kv"><b>所属分类</b>${esc(catLabel(it.cat))}</div>
+      <div class="kv"><b>计价单位</b>${esc(it.unit||'—')}</div>
       <div class="section-t">各版本 · 五级价（横向对比）</div>
       ${priceGrid(it)}
       <div class="section-t">项目内涵</div>
-      <div class="kv">${it.connotation||'—'}</div>
-      ${it.exclusion?`<div class="section-t">除外内容</div><div class="kv">${it.exclusion}</div>`:''}
+      <div class="kv">${it.connotation?esc(it.connotation):'—'}</div>
+      ${it.exclusion?`<div class="section-t">除外内容</div><div class="kv">${esc(it.exclusion)}</div>`:''}
       <div class="section-t">说明</div>
-      <div class="kv">${it.note||'—'}</div>
+      <div class="kv">${it.note?esc(it.note):'—'}</div>
+      ${it.remark?`<div class="section-t">备注</div><div class="kv">${esc(it.remark)}</div>`:''}
       <div class="actions" style="margin-top:14px"><button class="btn primary" id="toImg">📄 查看 ${V_MAIN} 原文（第 ${it.page_no} 页）</button></div>
     </div></div></div>`;
   $('#sx').onclick=closeSheet; $('#sm').onclick=e=>{if(e.target.id==='sm')closeSheet();};
@@ -685,35 +778,43 @@ async function openImage(id){
   }).join('');
   // 先出壳 + 加载态，再异步渲染真实 PDF 页
   $('#imgHost').innerHTML=`<div class="img-mask" id="im">
-    <div class="bar"><span>📄 ${V_MAIN} · 第 ${it.page_no} 页 · 「${it.name}」</span><button class="x" id="ix">关闭</button></div>
+    <div class="bar"><span>📄 ${V_MAIN} · 第 ${it.page_no} 页 · 「${esc(it.name)}」</span><button class="x" id="ix" aria-label="关闭">✕</button></div>
     <div class="viewport" id="vp">
       <div class="stage" id="stage">${hlHTML}</div>
-      <div class="pdf-loading" id="pdfload">正在渲染原文页…</div>
+      <div class="pdf-loading" id="pdfload"><span class="ldspin"></span>正在渲染原文页…</div>
     </div>
     <div class="img-note">🔵 名称行　🟠 五级价（三甲/三乙/二甲/二乙/二乙以下）——已在原文中高亮定位</div>
     <div class="zoombar">
       <button id="zout">−</button><span class="z" id="zval">100%</span><button id="zin">＋</button>
-      <button class="wide" id="zto">定位项目</button>
+      <button class="wide" id="zto">重置</button>
+      <button class="wide close" id="zclose">关闭</button>
       <label class="hlt"><input type="checkbox" id="hltog" checked/> 高亮</label>
     </div></div>`;
-  $('#ix').onclick=()=>$('#imgHost').innerHTML='';
+  const closeImg=()=>$('#imgHost').innerHTML='';
+  $('#ix').onclick=closeImg; $('#zclose').onclick=closeImg;
   $('#hltog').onchange=e=>{document.querySelectorAll('#stage .hl').forEach(x=>x.style.display=e.target.checked?'':'none');};
 
   const stageEl=$('#stage');
-  let natW, natH;
-  const R=3;                        // 超采样倍数：放大后仍清晰
-  try{
-    const rp=await renderPdfPage(it.page_no, R);
+  let natW, natH, curCanvas=null;
+  const R_FAST=1, R_HD=2;           // 两段式：先低清秒出，再后台换高清
+  function mountCanvas(rp){
     natW=rp.wpt; natH=rp.hpt;
     const cv=rp.canvas;
     cv.style.width=natW+'px'; cv.style.height=natH+'px'; cv.style.display='block';
     stageEl.style.width=natW+'px'; stageEl.style.height=natH+'px';
-    stageEl.insertBefore(cv, stageEl.firstChild);   // canvas 垫在高亮框之下
+    if(curCanvas) stageEl.replaceChild(cv, curCanvas);
+    else stageEl.insertBefore(cv, stageEl.firstChild);   // canvas 垫在高亮框之下
+    curCanvas=cv;
+  }
+  try{
+    mountCanvas(await renderPdfPage(it.page_no, R_FAST));   // 第一段：快速可看
     const pl=$('#pdfload'); if(pl) pl.remove();
   }catch(err){
     const pl=$('#pdfload'); if(pl) pl.textContent='原文页渲染失败：'+(err&&err.message||err);
     return;
   }
+  // 第二段：后台渲染高清并原位替换（弹窗仍开着才替换）
+  renderPdfPage(it.page_no, R_HD).then(hi=>{ if(document.getElementById('stage')===stageEl) mountCanvas(hi); }).catch(()=>{});
   if(!natW){ [natW,natH]=dim||[841.5,595.5]; }
 
   // ---- zoom / pan controller ----
@@ -899,13 +1000,17 @@ function toast(m, action){
 window.toast=toast;
 
 // ---- init ----
-$('#q').addEventListener('input',doSearch);
+function debounce(fn,ms){let t;return function(){clearTimeout(t);t=setTimeout(fn,ms);};}
+$('#q').addEventListener('input',debounce(doSearch,150));
 $('#clr').onclick=()=>{$('#q').value='';doSearch();$('#q').focus();};
 $('#aliasSearch').addEventListener('input',aliasRenderPicker);
 $('#aliasSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const f=document.querySelector('#aliasPickList [data-pick]'); if(f) f.click(); } });
 $('#aliasSearchClr').onclick=()=>{$('#aliasSearch').value='';aliasRenderPicker();$('#aliasSearch').focus();};
 $('#resetAliasBtn').onclick=()=>{ try{localStorage.removeItem(LS_KEY);}catch(e){} ALIASES.length=0;AID=0;seedDefaults();saveAliases();aliasSel=null;aliasEditAid=null;toast('已重置别名为默认');doSearch(); };
 renderFilters(); renderVerbar(); doSearch();
+{const b=document.getElementById('boot'); if(b) b.remove();}
+// 后台预热：加载后即开始解析 PDF 文档并预渲染首个可能页，让首次「查看原文」几乎不等待
+(function warmPdf(){ setTimeout(()=>{ try{ if(window.pdfjsLib) getPdf(); }catch(e){} }, 150); })();
 </script>
 </body>
 </html>

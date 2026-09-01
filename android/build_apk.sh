@@ -24,7 +24,7 @@ echo "== [2/7] aapt2 link (assets + manifest) =="
   -A "$PROJ/assets" \
   --java "$OUT/gen" \
   --min-sdk-version 21 --target-sdk-version 34 \
-  --version-code 4 --version-name 0.4.0 \
+  --version-code 5 --version-name 0.5.0 \
   "$OUT/compiled/res.zip"
 
 echo "== [3/7] javac (MainActivity + R.java) =="
@@ -55,9 +55,9 @@ if [ ! -f "$KS" ]; then
     -dname "CN=Med Price Debug, O=sora, C=CN" >/dev/null 2>&1
 fi
 "$BT/apksigner" sign --ks "$KS" --ks-pass pass:android --key-pass pass:android \
-  --out "$OUT/医疗价格查询-0.4.0.apk" "$OUT/aligned.apk"
+  --out "$OUT/医疗价格查询-0.5.0.apk" "$OUT/aligned.apk"
 
-"$BT/apksigner" verify --print-certs "$OUT/医疗价格查询-0.4.0.apk" | head -3
+"$BT/apksigner" verify --print-certs "$OUT/医疗价格查询-0.5.0.apk" | head -3
 
 echo "== DONE =="
-ls -la "$OUT/医疗价格查询-0.4.0.apk"
+ls -la "$OUT/医疗价格查询-0.5.0.apk"
