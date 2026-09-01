@@ -7,6 +7,27 @@ if not os.path.exists(SRC):
 doc=pymupdf.open(SRC)
 code15=re.compile(r'^\d{15}$')
 han=re.compile(r'[一-鿿]')
+
+# ---- 大项分类：正文中形如「一、综合医疗服务类」的一级标题（跳过前言页 1-6）----
+import bisect
+cat_pat=re.compile(r'^([一二三四五六七八九十]+)、\s*(.+?(?:类|项目))$')
+cats=[]  # (start_page(1-based), title)
+seen_title=set()
+for pno in range(6, doc.page_count):
+    for ln in doc[pno].get_text().splitlines():
+        ln=ln.strip()
+        m=cat_pat.match(ln)
+        if m and len(ln)<=16:
+            title=m.group(1)+'、'+m.group(2)
+            if title not in seen_title:
+                seen_title.add(title); cats.append((pno+1, title))
+cats.sort()
+CAT_STARTS=[c[0] for c in cats]
+CATEGORIES=[{"no":i+1,"title":t,"start_page":p} for i,(p,t) in enumerate(cats)]
+def cat_of(page_no):
+    i=bisect.bisect_right(CAT_STARTS, page_no)-1
+    return (i+1) if i>=0 else 0        # 1-based 大项序号，0=未归类
+print("categories:", [(p,t) for p,t in cats])
 def clean(s): return (s or '').replace('\n','').strip()
 def only_han(s): return ''.join(han.findall(s or ''))
 def py_full(s):
@@ -48,6 +69,7 @@ for pno in range(doc.page_count):
               "connotation":c[4],"exclusion":c[5],"unit":c[6],"note":c[7],
               "prices":[c[8],c[9],c[10],c[11],c[12]],"remark":c[13] if len(c)>13 else "",
               "page_no":pno+1,
+              "catno":cat_of(pno+1),
               "py":py_full(name),"init":py_init(name),
               "npy":py_full(c[1]),"ninit":py_init(c[1]),
               "hl":hl,
@@ -68,6 +90,7 @@ out={"version_label":"2024版",
      "coord":"pt",                       # 高亮框坐标单位：PDF 点
      "price_levels":["三甲","三乙","二甲","二乙","二乙以下"],
      "page_count":doc.page_count,
+     "categories":CATEGORIES,
      "items":uniq,"page_dims":page_dims}
 os.makedirs(os.path.join(ROOT,'data'), exist_ok=True)
 s=json.dumps(out, ensure_ascii=False)

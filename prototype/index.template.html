@@ -73,19 +73,32 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .mt-smart{background:#e0e7ff;color:#3730a3}
 .mt-field{background:#ccfbf1;color:#115e59}
 .mt-fuzzy{background:#fef3c7;color:#92400e}
-.cols{margin:6px 0 2px;font-size:12px;color:#475569}
-.cols .fixed{display:inline-flex;flex-wrap:wrap;gap:5px;vertical-align:middle}
-.cols .fixed b{background:#eef2ff;color:#3730a3;border-radius:6px;padding:2px 7px;font-weight:600}
-.cols .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.cols .opts label{display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:4px 9px;cursor:pointer}
-.cols .opts label.on{background:#ccfbf1;border-color:#5eead4;color:#115e59}
-.cols .opts input{margin:0}
+.filters{display:flex;gap:8px;margin:8px 0 2px;flex-wrap:wrap}
+.dd{position:relative}
+.dd-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#334155;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:9px;padding:6px 11px;cursor:pointer;white-space:nowrap}
+.dd-btn:hover{background:#e8eef6}
+.dd-btn b{color:#4f46e5;font-weight:700}
+.dd-btn .caret{opacity:.6;font-size:10px}
+.dd.open .dd-btn{background:#e0e7ff;border-color:#c7d2fe}
+.dd-panel{position:absolute;top:calc(100% + 5px);left:0;z-index:30;min-width:210px;max-height:320px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.16);padding:8px}
+.dd-panel .dd-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8;padding:2px 6px 6px}
+.dd-panel .dd-head a{color:#4f46e5;cursor:pointer;text-decoration:none}
+.dd-fixed{font-size:11px;color:#64748b;background:#f8fafc;border-radius:7px;padding:6px 8px;margin-bottom:6px;line-height:1.7}
+.dd-fixed b{background:#eef2ff;color:#3730a3;border-radius:5px;padding:1px 6px;margin-right:4px;display:inline-block}
+.dd-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:#334155}
+.dd-opt:hover{background:#f1f5f9}
+.dd-opt input{margin:0}
+.dd-opt small{margin-left:auto;color:#94a3b8;font-size:11px}
 /* result card */
 .rescount{font-size:12px;color:var(--sub);margin:10px 2px 6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(20,30,50,.04)}
 .card h3{margin:0 0 2px;font-size:15px;font-weight:700}
 .card .meta{font-size:11px;color:var(--sub);margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
 .card .meta code{background:#f1f4f9;border-radius:5px;padding:0 5px;font-size:10px}
+.cardinfo{margin:0 0 8px;display:flex;flex-direction:column;gap:4px}
+.cardinfo .ci{display:flex;gap:6px;font-size:12px;line-height:1.5}
+.cardinfo .ci .k{flex:none;color:#0369a1;background:#e0f2fe;border-radius:5px;padding:1px 6px;height:fit-content;font-size:10px;margin-top:1px}
+.cardinfo .ci .v{color:#475569;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pricegrid{border:1px solid var(--line);border-radius:10px;overflow-x:auto;overflow-y:hidden;font-size:12px;-webkit-overflow-scrolling:touch}
 .pricegrid table{width:auto;min-width:100%;border-collapse:collapse}
 .pricegrid th,.pricegrid td{padding:6px 6px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}
@@ -238,9 +251,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
       <input id="q" placeholder="项目名 / 编码 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off"/>
       <button class="clr" id="clr">×</button>
     </div>
-    <div class="hintline">支持 <b>关键词</b> · <b>拼音全拼</b> · <b>首字母</b> · <b>别名</b> · <b>模糊</b>。示例：</div>
-    <div id="examples"></div>
-    <div class="cols" id="cols"></div>
+    <div class="filters" id="filters"></div>
     <div class="verbar" id="verbar"></div>
     <div id="suggwrap"></div>
     <div class="rescount" id="rescount"></div>
@@ -318,7 +329,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div>
     <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
   </div>
-  <a class="dlbtn" href="medprice-query-0.3.0.apk" download="医疗价格查询-0.3.0.apk">⬇ 下载安卓 APK<small>v0.3.0 · 全量8124项 · ~13 MB</small></a>
+  <a class="dlbtn" href="medprice-query-0.4.0.apk" download="医疗价格查询-0.4.0.apk">⬇ 下载安卓 APK<small>v0.4.0 · 全量8124项 · ~5.4 MB</small></a>
   <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
   <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
     数据取自《成都市医疗服务项目价格汇编（2024版）》全量 <b id="cnt">…</b> 个项目、共 <b id="pcnt">…</b> 页原文；结构化数据内嵌本页，原文页由内置 PDF 经 pdf.js 按需矢量渲染并高亮，检索/对比/核验均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
@@ -481,6 +492,14 @@ COLDEFS.forEach(c=>OPTCOL[c.k]=false);
 (function loadCols(){ try{ const s=JSON.parse(localStorage.getItem(COLS_KEY)||'{}'); COLDEFS.forEach(c=>{ if(typeof s[c.k]==='boolean') OPTCOL[c.k]=s[c.k]; }); }catch(e){} })();
 function saveCols(){ try{ localStorage.setItem(COLS_KEY, JSON.stringify(OPTCOL)); }catch(e){} }
 
+// ---- 大项分类：多选，默认全选；用户修改后持久化，仅在选中的大项内检索 ----
+const CATEGORIES=DATA.categories||[];
+const CAT_KEY='medprice.cats.v1';
+const CATSEL=new Set(CATEGORIES.map(c=>c.no));      // 选中的大项 no 集合
+(function loadCatSel(){ try{ const s=JSON.parse(localStorage.getItem(CAT_KEY)); if(Array.isArray(s)){ CATSEL.clear(); s.forEach(n=>{ if(CATEGORIES.some(c=>c.no===n)) CATSEL.add(n); }); } }catch(e){} })();
+function saveCatSel(){ try{ localStorage.setItem(CAT_KEY, JSON.stringify([...CATSEL])); }catch(e){} }
+function catCount(no){ return DATA.items.reduce((a,it)=>a+(it.catno===no?1:0),0); }
+
 function search(raw){
   const q=norm(raw);
   if(!q) return [];
@@ -489,7 +508,9 @@ function search(raw){
   const aliasHit=ALIASES.filter(a=>{const t=norm(a.term);return t.includes(q)||q.includes(t);});
   const aliasIds=new Set(aliasHit.map(a=>a.item));
   const optKeys=COLDEFS.map(c=>c.k).filter(k=>OPTCOL[k]);   // 已勾选的可选列
+  const catAll=CATSEL.size===CATEGORIES.length;             // 全选时不过滤
   for(const it of DATA.items){
+    if(!catAll && !CATSEL.has(it.catno)) continue;          // 仅在选中的大项内检索
     // ① 默认四列：项目名称 / 国家项目名称 / 项目编码 / 国家项目编码（含子串）
     if(it._nm.includes(q)||it._nt.includes(q)||it._lc.includes(q)||it._nc.includes(q)){ add(it,'exact',1); continue; }
     // ② 名称拼音 / 首字母
@@ -515,17 +536,41 @@ const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别�
 const $=s=>document.querySelector(s);
 function activeVersions(){return VERSIONS.filter(v=>v.on).map(v=>v.label);}
 
-function renderExamples(){
-  const ex=[['床位','关键词'],['jzzcf','首字母'],['单远珍','缩写同音'],['单x','汉字+拼音'],['yuancheng','拼音'],['急诊挂号','别名']];
-  $('#examples').innerHTML=ex.map(([t,l])=>`<span class="chip-tag" data-q="${t}">${t}<small style="opacity:.6"> ${l}</small></span>`).join('');
-  document.querySelectorAll('#examples .chip-tag').forEach(c=>c.onclick=()=>{$('#q').value=c.dataset.q;doSearch();});
+// 通用多选下拉：{host, btnHTML(), panelHTML(), bind(panel)}
+function mountDropdown(host, cfg){
+  host.innerHTML=`<button class="dd-btn" type="button">${cfg.btnHTML()}</button><div class="dd-panel" hidden></div>`;
+  const btn=host.querySelector('.dd-btn'), panel=host.querySelector('.dd-panel');
+  function paint(){ btn.innerHTML=cfg.btnHTML(); panel.innerHTML=cfg.panelHTML(); cfg.bind(panel, paint); }
+  paint();
+  btn.onclick=e=>{ e.stopPropagation(); const open=host.classList.toggle('open'); panel.hidden=!open;
+    document.querySelectorAll('.dd.open').forEach(d=>{ if(d!==host){ d.classList.remove('open'); d.querySelector('.dd-panel').hidden=true; }}); };
+  panel.onclick=e=>e.stopPropagation();
+  host._paint=paint;
 }
-function renderCols(){
-  const fixed=`<span class="fixed"><b>国家项目编码</b><b>国家项目名称</b><b>项目编码</b><b>项目名称</b></span>`;
-  const opts=COLDEFS.map(c=>`<label class="${OPTCOL[c.k]?'on':''}"><input type="checkbox" data-col="${c.k}" ${OPTCOL[c.k]?'checked':''}/>${c.label}</label>`).join('');
-  $('#cols').innerHTML=`<span>默认匹配：</span>${fixed}<div class="opts"><span style="align-self:center">加入匹配：</span>${opts}</div>`;
-  document.querySelectorAll('#cols input[data-col]').forEach(cb=>cb.onchange=e=>{
-    OPTCOL[e.target.dataset.col]=e.target.checked; saveCols(); renderCols(); doSearch();
+document.addEventListener('click',()=>document.querySelectorAll('.dd.open').forEach(d=>{d.classList.remove('open');d.querySelector('.dd-panel').hidden=true;}));
+
+function renderFilters(){
+  $('#filters').innerHTML=`<div class="dd" id="ddCat"></div><div class="dd" id="ddCol"></div>`;
+  // —— 大项分类 ——
+  mountDropdown($('#ddCat'),{
+    btnHTML:()=>{ const n=CATSEL.size,t=CATEGORIES.length; return `大项范围 <b>${n===t?'全部':n+'/'+t}</b><span class="caret">▼</span>`; },
+    panelHTML:()=>`<div class="dd-head"><span>在选中的大项内检索</span><span><a data-all>全选</a> · <a data-none>清空</a></span></div>`+
+      CATEGORIES.map(c=>`<label class="dd-opt"><input type="checkbox" data-cat="${c.no}" ${CATSEL.has(c.no)?'checked':''}/>${c.title}<small>${catCount(c.no)}</small></label>`).join(''),
+    bind:(panel,paint)=>{
+      panel.querySelectorAll('input[data-cat]').forEach(cb=>cb.onchange=e=>{ const no=+e.target.dataset.cat; e.target.checked?CATSEL.add(no):CATSEL.delete(no); if(CATSEL.size===0){CATSEL.add(no);e.target.checked=true;} saveCatSel(); paint(); doSearch(); });
+      panel.querySelector('[data-all]').onclick=()=>{ CATEGORIES.forEach(c=>CATSEL.add(c.no)); saveCatSel(); paint(); doSearch(); };
+      panel.querySelector('[data-none]').onclick=()=>{ CATSEL.clear(); CATSEL.add(CATEGORIES[0].no); saveCatSel(); paint(); doSearch(); };
+    }
+  });
+  // —— 匹配范围（列）——
+  mountDropdown($('#ddCol'),{
+    btnHTML:()=>{ const n=COLDEFS.filter(c=>OPTCOL[c.k]).length; return `匹配范围 <b>${n?'+'+n+'列':'默认4列'}</b><span class="caret">▼</span>`; },
+    panelHTML:()=>`<div class="dd-fixed">默认匹配：<b>国家项目编码</b><b>国家项目名称</b><b>项目编码</b><b>项目名称</b></div>`+
+      `<div class="dd-head"><span>加入匹配以下列</span></div>`+
+      COLDEFS.map(c=>`<label class="dd-opt"><input type="checkbox" data-col="${c.k}" ${OPTCOL[c.k]?'checked':''}/>${c.label}</label>`).join(''),
+    bind:(panel,paint)=>{
+      panel.querySelectorAll('input[data-col]').forEach(cb=>cb.onchange=e=>{ OPTCOL[e.target.dataset.col]=e.target.checked; saveCols(); paint(); doSearch(); });
+    }
   });
 }
 function renderVerbar(){
@@ -568,9 +613,13 @@ function priceGrid(it){
 }
 function resultCard(r){
   const it=r.it, [ml,mc]=MT[r.type];
+  const conn=it.connotation? `<div class="ci"><span class="k">内涵</span><span class="v">${esc(it.connotation)}</span></div>`:'';
+  const note=it.note? `<div class="ci"><span class="k">说明</span><span class="v">${esc(it.note)}</span></div>`:'';
+  const info=(conn||note)? `<div class="cardinfo">${conn}${note}</div>`:'';
   return `<div class="card" data-card="${it.id}">
     <h3>${it.name}<span class="matchtype ${mc}">${ml}</span></h3>
     <div class="meta"><span>编码 <code>${it.local_code}</code></span><span>国家码 <code>${it.national_code}</code></span><span>单位 ${it.unit||'—'}</span></div>
+    ${info}
     ${priceGrid(it)}
     <div class="actions">
       <button class="btn primary" data-detail="${it.id}">📄 查看原文</button>
@@ -584,7 +633,7 @@ function doSearch(){
   let list=search(raw);
   if(onlyChanged) list=list.filter(r=>versionsChanged(r.it));
   $('#rescount').textContent = raw? `命中 ${list.length} 项 · 版本：${activeVersions().join(' / ')||'（未选）'}` : '';
-  if(!raw){ $('#results').innerHTML=`<div class="empty"><div class="big">🔎</div>输入项目名、拼音或别名开始检索<br><small>试试左侧「试试看」的例子</small></div>`; $('#suggwrap').innerHTML=''; return; }
+  if(!raw){ $('#results').innerHTML=`<div class="empty"><div class="big">🔎</div>输入项目名、编码、拼音或别名开始检索<br><small>可用上方「大项范围」「匹配范围」缩小检索</small></div>`; $('#suggwrap').innerHTML=''; return; }
   // suggestions: compact horizontal chips (only when >1 result, avoids duplicating the card list)
   const dcls={exact:'d-exact',pinyin:'d-pinyin',alias:'d-alias',fuzzy:'d-fuzzy'};
   $('#suggwrap').innerHTML = list.length>1? `<div class="sugglabel">联想 · 点按直达</div><div class="suggrow">${list.slice(0,8).map(r=>
@@ -631,7 +680,7 @@ async function openImage(id){
   const hlHTML=hls.map(h=>{
     let extra='',lbl='';
     if(h.k==='name'){extra=' lbl';lbl=` data-lbl="项目名称"`;}
-    else if(h.k==='price'){const i=priceIdx.indexOf(h); if(i===0){extra=' lbl';lbl=` data-lbl="${LEVELS[0]}价"`;}}
+    else if(h.k==='price'){const i=priceIdx.indexOf(h); if(i>=0 && i<LEVELS.length){extra=' lbl';lbl=` data-lbl="${LEVELS[i]}"`;}}
     return `<div class="hl ${h.k}${extra}" data-k="${h.k}"${lbl} style="left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px"></div>`;
   }).join('');
   // 先出壳 + 加载态，再异步渲染真实 PDF 页
@@ -856,7 +905,7 @@ $('#aliasSearch').addEventListener('input',aliasRenderPicker);
 $('#aliasSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const f=document.querySelector('#aliasPickList [data-pick]'); if(f) f.click(); } });
 $('#aliasSearchClr').onclick=()=>{$('#aliasSearch').value='';aliasRenderPicker();$('#aliasSearch').focus();};
 $('#resetAliasBtn').onclick=()=>{ try{localStorage.removeItem(LS_KEY);}catch(e){} ALIASES.length=0;AID=0;seedDefaults();saveAliases();aliasSel=null;aliasEditAid=null;toast('已重置别名为默认');doSearch(); };
-renderExamples(); renderCols(); renderVerbar(); doSearch();
+renderFilters(); renderVerbar(); doSearch();
 </script>
 </body>
 </html>
