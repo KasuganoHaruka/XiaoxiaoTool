@@ -25,6 +25,8 @@ public class MainActivity extends Activity {
     s.setDomStorageEnabled(true);          // localStorage：用户别名持久化
     s.setDatabaseEnabled(true);
     s.setAllowFileAccess(true);            // 读取内置 assets
+    s.setAllowFileAccessFromFileURLs(true);      // pdf.js 以 XHR 读取 file:///android_asset/doc.pdf
+    s.setAllowUniversalAccessFromFileURLs(true); // pdf.js worker/资源跨 file:// 访问
     s.setLoadWithOverviewMode(false);
     s.setUseWideViewPort(false);
     s.setBuiltInZoomControls(false);       // 缩放由页面内自行实现（原文核验）

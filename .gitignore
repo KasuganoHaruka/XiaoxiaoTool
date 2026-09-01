@@ -11,3 +11,8 @@ prototype/index.html
 android/assets/index.html
 medprice-query-0.1.0.apk
 prototype/*.apk
+# Copied at build time from vendor/ and data/ (source of truth committed there)
+prototype/pdfjs/
+prototype/doc.pdf
+android/assets/pdfjs/
+android/assets/doc.pdf

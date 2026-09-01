@@ -71,7 +71,15 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .mt-pinyin{background:#e0f2fe;color:#075985}
 .mt-alias{background:#fae8ff;color:#86198f}
 .mt-smart{background:#e0e7ff;color:#3730a3}
+.mt-field{background:#ccfbf1;color:#115e59}
 .mt-fuzzy{background:#fef3c7;color:#92400e}
+.cols{margin:6px 0 2px;font-size:12px;color:#475569}
+.cols .fixed{display:inline-flex;flex-wrap:wrap;gap:5px;vertical-align:middle}
+.cols .fixed b{background:#eef2ff;color:#3730a3;border-radius:6px;padding:2px 7px;font-weight:600}
+.cols .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.cols .opts label{display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:4px 9px;cursor:pointer}
+.cols .opts label.on{background:#ccfbf1;border-color:#5eead4;color:#115e59}
+.cols .opts input{margin:0}
 /* result card */
 .rescount{font-size:12px;color:var(--sub);margin:10px 2px 6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(20,30,50,.04)}
@@ -113,8 +121,9 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 .img-mask .bar .x{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer}
 .viewport{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab;background:#0b0f14}
 .viewport.drag{cursor:grabbing}
-.stage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
-.stage img{display:block;background:#fff;-webkit-user-drag:none;user-select:none;pointer-events:none}
+.stage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;background:#fff}
+.stage img,.stage canvas{display:block;background:#fff;-webkit-user-drag:none;user-select:none;pointer-events:none}
+.pdf-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:13px;pointer-events:none}
 .hl{position:absolute;border-radius:2px;pointer-events:none}
 .hl.row{background:rgba(14,165,164,.10);outline:1.5px dashed rgba(45,212,191,.7)}
 .hl.name{background:rgba(37,99,235,.20);outline:2.5px solid rgba(96,165,250,.95);animation:pulse 1.6s ease-in-out infinite}
@@ -226,11 +235,12 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div class="screen" id="scr-search">
     <div class="searchbox">
       <span class="mag">🔍</span>
-      <input id="q" placeholder="项目名 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off"/>
+      <input id="q" placeholder="项目名 / 编码 / 拼音 / 首字母 / 别名，如 jzzcf" autocomplete="off"/>
       <button class="clr" id="clr">×</button>
     </div>
     <div class="hintline">支持 <b>关键词</b> · <b>拼音全拼</b> · <b>首字母</b> · <b>别名</b> · <b>模糊</b>。示例：</div>
     <div id="examples"></div>
+    <div class="cols" id="cols"></div>
     <div class="verbar" id="verbar"></div>
     <div id="suggwrap"></div>
     <div class="rescount" id="rescount"></div>
@@ -272,7 +282,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div class="screen hidden" id="scr-data">
     <div class="panel">
       <h4>数据管理</h4>
-      <p>标准数据包：<code>data.db</code> + <code>page_images/</code> + <code>meta.json</code>，内置随 App 分发。</p>
+      <p>标准数据包：<code>proto_data.json</code>（8124 项全量结构化数据）+ <code>doc.pdf</code>（原始 PDF，pdf.js 按需渲染）+ <code>pdfjs/</code>，内置随 App 分发。</p>
       <div class="stat" id="dataStat"></div>
     </div>
     <div class="panel">
@@ -308,10 +318,10 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
   <div>
     <span class="tag">真实数据</span><span class="tag">离线检索</span><span class="tag">五级价</span><span class="tag">跳页核验</span>
   </div>
-  <a class="dlbtn" href="medprice-query-0.2.0.apk" download="医疗价格查询-0.2.0.apk">⬇ 下载安卓 APK<small>v0.2.0 · 1.3 MB</small></a>
+  <a class="dlbtn" href="medprice-query-0.3.0.apk" download="医疗价格查询-0.3.0.apk">⬇ 下载安卓 APK<small>v0.3.0 · 全量8124项 · ~13 MB</small></a>
   <div class="dlnote">手机浏览器打开本页即可下载安装（需在系统设置里允许「未知来源／安装未知应用」）。离线运行、无网络权限。</div>
   <p style="font-size:12.5px;color:#374151;margin:6px 0 0">
-    数据取自样本《成都市医疗服务项目价格汇编（2024版）》真实 <b id="cnt">…</b> 个项目、<b id="pcnt">…</b> 页原文图，全部内嵌于本页，检索/对比/跳页均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
+    数据取自《成都市医疗服务项目价格汇编（2024版）》全量 <b id="cnt">…</b> 个项目、共 <b id="pcnt">…</b> 页原文；结构化数据内嵌本页，原文页由内置 PDF 经 pdf.js 按需矢量渲染并高亮，检索/对比/核验均在浏览器本地运行——对应安卓 App 的「内置数据 + 本地检索」。
   </p>
   <h3>对照痛点</h3>
   <ul>
@@ -333,13 +343,35 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-se
 
 <script id="DATA" type="application/json">__DATA__</script>
 <script id="PYMAP" type="application/json">__PYMAP__</script>
+<script src="pdfjs/pdf.min.js"></script>
 <script>
 const DATA = JSON.parse(document.getElementById('DATA').textContent);
 const PYMAP = JSON.parse(document.getElementById('PYMAP').textContent);   // 汉字→全拼（无声调），供同音/首字母/混合匹配
 const LEVELS = DATA.price_levels;               // 三甲/三乙/二甲/二乙/二乙以下
 const V_MAIN = DATA.version_label;              // 2024版
+const PAGE_DIMS = DATA.page_dims||{};           // 每有项目的页：[宽,高]（PDF 点）
 document.getElementById('cnt').textContent = DATA.items.length;
-document.getElementById('pcnt').textContent = Object.keys(DATA.page_images).length;
+{const pc=$dqs('#pcnt'); if(pc) pc.textContent = DATA.page_count || Object.keys(PAGE_DIMS).length;}
+
+// ================= PDF 原文渲染（pdf.js，内置 doc.pdf，离线按需渲染） =================
+if(window.pdfjsLib){ pdfjsLib.GlobalWorkerOptions.workerSrc='pdfjs/pdf.worker.min.js'; }
+let _PDFDOC=null, _PDFPROM=null;
+function getPdf(){
+  if(_PDFDOC) return Promise.resolve(_PDFDOC);
+  if(!_PDFPROM) _PDFPROM=pdfjsLib.getDocument({url:(DATA.pdf_file||'doc.pdf')}).promise.then(d=>_PDFDOC=d);
+  return _PDFPROM;
+}
+// 渲染指定页到 canvas；R=超采样倍数（越大越清晰）。返回 {canvas, wpt, hpt}
+async function renderPdfPage(pageNo, R){
+  const pdf=await getPdf();
+  const page=await pdf.getPage(pageNo);
+  const vp=page.getViewport({scale:R});
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.ceil(vp.width); canvas.height=Math.ceil(vp.height);
+  await page.render({canvasContext:canvas.getContext('2d',{alpha:false}), viewport:vp}).promise;
+  return {canvas, wpt:vp.width/R, hpt:vp.height/R};
+}
+function $dqs(s){return document.querySelector(s);}
 
 // ---- assign ids ----
 DATA.items.forEach((it,i)=> it.id='I'+i);
@@ -350,7 +382,17 @@ function charIndex(s){
   for(const ch of (s||'')){ const p=PYMAP[ch]; if(p) arr.push({ch, py:p, ini:p[0]}); }
   return arr;
 }
-DATA.items.forEach(it=>{ it._cn=charIndex(it.name); it._cnat=charIndex(it.national_name); });
+DATA.items.forEach(it=>{
+  it._cn=charIndex(it.name); it._cnat=charIndex(it.national_name);
+  // 预规范化：默认四列（名称×2 + 编码×2）+ 可选列，加速全量检索
+  it._nm=norm(it.name); it._nt=norm(it.national_name);
+  it._lc=norm(it.local_code); it._nc=norm(it.national_code);
+  it._opt={
+    connotation:norm(it.connotation), exclusion:norm(it.exclusion),
+    unit:norm(it.unit), note:norm(it.note),
+    prices:norm((it.prices||[]).join(' ')), remark:norm(it.remark)
+  };
+});
 
 // ---- versions: only the real 2024 data (no demo/simulated version) ----
 DATA.items.forEach(it=>{
@@ -427,32 +469,47 @@ function smartMatch(chars, Q){
   }
   return go(0,0);
 }
+// ---- 匹配列：默认四列（国家码/国家名/项目码/项目名）固定参与；其余列用户勾选纳入 ----
+const COLDEFS=[
+  {k:'connotation',label:'项目内涵'},{k:'exclusion',label:'除外内容'},
+  {k:'unit',label:'计价单位'},{k:'note',label:'说明'},
+  {k:'prices',label:'价格'},{k:'remark',label:'备注'},
+];
+const COLS_KEY='medprice.searchcols.v1';
+const OPTCOL={};
+COLDEFS.forEach(c=>OPTCOL[c.k]=false);
+(function loadCols(){ try{ const s=JSON.parse(localStorage.getItem(COLS_KEY)||'{}'); COLDEFS.forEach(c=>{ if(typeof s[c.k]==='boolean') OPTCOL[c.k]=s[c.k]; }); }catch(e){} })();
+function saveCols(){ try{ localStorage.setItem(COLS_KEY, JSON.stringify(OPTCOL)); }catch(e){} }
+
 function search(raw){
   const q=norm(raw);
   if(!q) return [];
   const out=new Map();
   const add=(it,type,rank)=>{ const e=out.get(it.id); if(!e||rank<e.rank) out.set(it.id,{it,type,rank}); };
-  // alias expansion -> map alias term to item id
   const aliasHit=ALIASES.filter(a=>{const t=norm(a.term);return t.includes(q)||q.includes(t);});
   const aliasIds=new Set(aliasHit.map(a=>a.item));
+  const optKeys=COLDEFS.map(c=>c.k).filter(k=>OPTCOL[k]);   // 已勾选的可选列
   for(const it of DATA.items){
-    const name=norm(it.name), nat=norm(it.national_name);
+    // ① 默认四列：项目名称 / 国家项目名称 / 项目编码 / 国家项目编码（含子串）
+    if(it._nm.includes(q)||it._nt.includes(q)||it._lc.includes(q)||it._nc.includes(q)){ add(it,'exact',1); continue; }
+    // ② 名称拼音 / 首字母
     const py=it.py||'', ini=it.init||'', npy=it.npy||'', nini=it.ninit||'';
-    if(name.includes(q)||nat.includes(q)){ add(it,'exact',1); continue; }
-    if(py.includes(q)||npy.includes(q)){ add(it,'pinyin',2); continue; }
-    if((ini&&ini.includes(q))||(nini&&nini.includes(q))){ add(it,'pinyin',2); continue; }
+    if(py.includes(q)||npy.includes(q)||(ini&&ini.includes(q))||(nini&&nini.includes(q))){ add(it,'pinyin',2); continue; }
+    // ③ 别名
     if(aliasIds.has(it.id)){ add(it,'alias',3); continue; }
-    // 智能子序列（缩写 / 同音错字 / 汉字+拼音混合）
-    if(q.length>=2 && (smartMatch(it._cn,q)||smartMatch(it._cnat,q))){ add(it,'smart',4); continue; }
-    // fuzzy on name (short queries only, edit distance<=2)
+    // ④ 可选列（用户勾选后纳入）：内涵/除外/单位/说明/价格/备注 的直接子串命中
+    if(optKeys.length && optKeys.some(k=> it._opt[k] && it._opt[k].includes(q))){ add(it,'field',4); continue; }
+    // ⑤ 智能子序列（缩写 / 同音错字 / 汉字+拼音混合）—仅对名称
+    if(q.length>=2 && (smartMatch(it._cn,q)||smartMatch(it._cnat,q))){ add(it,'smart',5); continue; }
+    // ⑥ 名称模糊（编辑距离≤2）
     if(q.length>=2 && q.length<=8){
-      const dist=Math.min(lev(q,name.slice(0,q.length+2)), lev(q,name));
-      if(dist<=2) add(it,'fuzzy',5);
+      const dist=Math.min(lev(q,it._nm.slice(0,q.length+2)), lev(q,it._nm));
+      if(dist<=2) add(it,'fuzzy',6);
     }
   }
   return [...out.values()].sort((a,b)=> a.rank-b.rank || a.it.name.localeCompare(b.it.name));
 }
-const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],smart:['联想','mt-smart'],fuzzy:['模糊','mt-fuzzy']};
+const MT={exact:['精确','mt-exact'],pinyin:['拼音','mt-pinyin'],alias:['别名','mt-alias'],field:['内容','mt-field'],smart:['联想','mt-smart'],fuzzy:['模糊','mt-fuzzy']};
 
 // ================= rendering =================
 const $=s=>document.querySelector(s);
@@ -462,6 +519,14 @@ function renderExamples(){
   const ex=[['床位','关键词'],['jzzcf','首字母'],['单远珍','缩写同音'],['单x','汉字+拼音'],['yuancheng','拼音'],['急诊挂号','别名']];
   $('#examples').innerHTML=ex.map(([t,l])=>`<span class="chip-tag" data-q="${t}">${t}<small style="opacity:.6"> ${l}</small></span>`).join('');
   document.querySelectorAll('#examples .chip-tag').forEach(c=>c.onclick=()=>{$('#q').value=c.dataset.q;doSearch();});
+}
+function renderCols(){
+  const fixed=`<span class="fixed"><b>国家项目编码</b><b>国家项目名称</b><b>项目编码</b><b>项目名称</b></span>`;
+  const opts=COLDEFS.map(c=>`<label class="${OPTCOL[c.k]?'on':''}"><input type="checkbox" data-col="${c.k}" ${OPTCOL[c.k]?'checked':''}/>${c.label}</label>`).join('');
+  $('#cols').innerHTML=`<span>默认匹配：</span>${fixed}<div class="opts"><span style="align-self:center">加入匹配：</span>${opts}</div>`;
+  document.querySelectorAll('#cols input[data-col]').forEach(cb=>cb.onchange=e=>{
+    OPTCOL[e.target.dataset.col]=e.target.checked; saveCols(); renderCols(); doSearch();
+  });
 }
 function renderVerbar(){
   const multi = VERSIONS.length>1;
@@ -558,18 +623,10 @@ function openDetail(id){
 function closeSheet(){$('#sheetHost').innerHTML='';}
 
 // ---- page image modal (P3): highlight key data + zoom/pan ----
-function openImage(id){
+async function openImage(id){
   const it=DATA.items.find(x=>x.id===id);
-  const img=DATA.page_images[String(it.page_no)];
-  const dim=(DATA.page_dims||{})[String(it.page_no)];
-  if(!img || !dim){
-    $('#imgHost').innerHTML=`<div class="img-mask" id="im">
-      <div class="bar"><span>📄 原文核验 · 第 ${it.page_no} 页</span><button class="x" id="ix">关闭</button></div>
-      <div class="demo-nopage">该版本为演示模拟数据，无对应原文页。<br>真实版本将逐页内置页码图，绝对精准跳转。</div></div>`;
-    $('#ix').onclick=()=>$('#imgHost').innerHTML=''; return;
-  }
-  const [natW,natH]=dim;
-  const hls=(it.hl||[]);
+  const dim=PAGE_DIMS[String(it.page_no)];
+  const hls=(it.hl||[]);            // 坐标单位：PDF 点（与 pdf.js 点坐标一致）
   const priceIdx=hls.filter(h=>h.k==='price').sort((a,b)=>a.x-b.x);
   const hlHTML=hls.map(h=>{
     let extra='',lbl='';
@@ -577,10 +634,12 @@ function openImage(id){
     else if(h.k==='price'){const i=priceIdx.indexOf(h); if(i===0){extra=' lbl';lbl=` data-lbl="${LEVELS[0]}价"`;}}
     return `<div class="hl ${h.k}${extra}" data-k="${h.k}"${lbl} style="left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px"></div>`;
   }).join('');
+  // 先出壳 + 加载态，再异步渲染真实 PDF 页
   $('#imgHost').innerHTML=`<div class="img-mask" id="im">
     <div class="bar"><span>📄 ${V_MAIN} · 第 ${it.page_no} 页 · 「${it.name}」</span><button class="x" id="ix">关闭</button></div>
     <div class="viewport" id="vp">
-      <div class="stage" id="stage"><img src="${img}" style="width:${natW}px;height:${natH}px"/>${hlHTML}</div>
+      <div class="stage" id="stage">${hlHTML}</div>
+      <div class="pdf-loading" id="pdfload">正在渲染原文页…</div>
     </div>
     <div class="img-note">🔵 名称行　🟠 五级价（三甲/三乙/二甲/二乙/二乙以下）——已在原文中高亮定位</div>
     <div class="zoombar">
@@ -591,8 +650,25 @@ function openImage(id){
   $('#ix').onclick=()=>$('#imgHost').innerHTML='';
   $('#hltog').onchange=e=>{document.querySelectorAll('#stage .hl').forEach(x=>x.style.display=e.target.checked?'':'none');};
 
+  const stageEl=$('#stage');
+  let natW, natH;
+  const R=3;                        // 超采样倍数：放大后仍清晰
+  try{
+    const rp=await renderPdfPage(it.page_no, R);
+    natW=rp.wpt; natH=rp.hpt;
+    const cv=rp.canvas;
+    cv.style.width=natW+'px'; cv.style.height=natH+'px'; cv.style.display='block';
+    stageEl.style.width=natW+'px'; stageEl.style.height=natH+'px';
+    stageEl.insertBefore(cv, stageEl.firstChild);   // canvas 垫在高亮框之下
+    const pl=$('#pdfload'); if(pl) pl.remove();
+  }catch(err){
+    const pl=$('#pdfload'); if(pl) pl.textContent='原文页渲染失败：'+(err&&err.message||err);
+    return;
+  }
+  if(!natW){ [natW,natH]=dim||[841.5,595.5]; }
+
   // ---- zoom / pan controller ----
-  const vp=$('#vp'), stage=$('#stage'), zval=$('#zval');
+  const vp=$('#vp'), stage=stageEl, zval=$('#zval');
   let vpW=vp.clientWidth, vpH=vp.clientHeight;
   const fit=vpW/natW;                 // scale to fit width
   const MIN=fit*0.5, MAX=fit*8;
@@ -745,8 +821,8 @@ function aliasRenderEdit(){
 }
 function renderDataStat(){
   $('#dataStat').innerHTML=`
-    <div class="b"><b>${DATA.items.length}</b><small>项目（样本）</small></div>
-    <div class="b"><b>${Object.keys(DATA.page_images).length}</b><small>原文页图</small></div>
+    <div class="b"><b>${DATA.items.length}</b><small>项目（全量）</small></div>
+    <div class="b"><b>${DATA.page_count||Object.keys(PAGE_DIMS).length}</b><small>PDF 页数</small></div>
     <div class="b"><b>5</b><small>价格档位</small></div>
     <div class="b"><b>${VERSIONS.length}</b><small>版本</small></div>`;
 }
@@ -780,7 +856,7 @@ $('#aliasSearch').addEventListener('input',aliasRenderPicker);
 $('#aliasSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const f=document.querySelector('#aliasPickList [data-pick]'); if(f) f.click(); } });
 $('#aliasSearchClr').onclick=()=>{$('#aliasSearch').value='';aliasRenderPicker();$('#aliasSearch').focus();};
 $('#resetAliasBtn').onclick=()=>{ try{localStorage.removeItem(LS_KEY);}catch(e){} ALIASES.length=0;AID=0;seedDefaults();saveAliases();aliasSel=null;aliasEditAid=null;toast('已重置别名为默认');doSearch(); };
-renderExamples(); renderVerbar(); doSearch();
+renderExamples(); renderCols(); renderVerbar(); doSearch();
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import json, os
+import json, os, shutil
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tpl=open(f'{ROOT}/prototype/index.template.html',encoding='utf-8').read()
 data=open(f'{ROOT}/data/proto_data.json',encoding='utf-8').read().replace('</script>','<\\/script>')
@@ -23,4 +23,11 @@ html=html.replace('</head>', appmode, 1)
 
 out=f'{ROOT}/android/assets/index.html'
 open(out,'w',encoding='utf-8').write(html)
-print('written', out, 'size', round(len(html.encode('utf-8'))/1024,1),'KB')
+
+# pdf.js + 原始 PDF 一并打进 assets（离线按需渲染原文页）
+adir=f'{ROOT}/android/assets'
+os.makedirs(f'{adir}/pdfjs', exist_ok=True)
+for f in ('pdf.min.js','pdf.worker.min.js'):
+    shutil.copyfile(f'{ROOT}/vendor/pdfjs/{f}', f'{adir}/pdfjs/{f}')
+shutil.copyfile(f'{ROOT}/data/doc.pdf', f'{adir}/doc.pdf')
+print('written', out, 'size', round(len(html.encode('utf-8'))/1024,1),'KB  + assets/pdfjs/ + assets/doc.pdf')
